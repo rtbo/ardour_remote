@@ -37,7 +37,8 @@ class App extends StatelessWidget {
         title: 'Ardour Remote',
         theme: ThemeData(
           useMaterial3: true,
-          colorScheme: ColorScheme.fromSeed(seedColor: Colors.redAccent),
+          colorScheme: ColorScheme.fromSeed(
+              seedColor: const Color.fromARGB(255, 75, 51, 180)),
         ),
         home: const ConnectionPage(),
       ),
