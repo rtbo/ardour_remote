@@ -230,47 +230,55 @@ class _ConnectNewPageState extends State<ConnectNewPage> {
           key: formKey,
           child: Column(
             children: [
-              const SizedBox(height: 8),
-              TextFormField(
-                controller: nameController,
-                decoration: const InputDecoration(
-                  border: OutlineInputBorder(),
-                  labelText: "\u{1f4d3} Name (optional)",
+              Padding(
+                padding: const EdgeInsets.all(12),
+                child: TextFormField(
+                  controller: nameController,
+                  decoration: const InputDecoration(
+                    border: OutlineInputBorder(),
+                    labelText: "Name (optional)",
+                  ),
                 ),
               ),
-              const SizedBox(height: 8),
-              TextFormField(
-                controller: hostController,
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return "Provide Ardour station host name or address";
-                  } else {
-                    return null;
-                  }
-                },
-                decoration: const InputDecoration(
-                  border: OutlineInputBorder(),
-                  labelText: "\u{1f4bb} Host or IP address",
+              Padding(
+                padding: const EdgeInsets.all(12),
+                child: TextFormField(
+                  controller: hostController,
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return "Provide Ardour station host name or address";
+                    } else {
+                      return null;
+                    }
+                  },
+                  decoration: const InputDecoration(
+                    border: OutlineInputBorder(),
+                    labelText: "\u{1f4bb} Host or IP address",
+                  ),
                 ),
               ),
-              const SizedBox(height: 8),
-              TextFormField(
-                controller: sendPortController,
-                keyboardType: TextInputType.number,
-                validator: validatePort,
-                decoration: const InputDecoration(
-                  border: OutlineInputBorder(),
-                  labelText: "\u2191 Send Port",
+              Padding(
+                padding: const EdgeInsets.all(12),
+                child: TextFormField(
+                  controller: sendPortController,
+                  keyboardType: TextInputType.number,
+                  validator: validatePort,
+                  decoration: const InputDecoration(
+                    border: OutlineInputBorder(),
+                    labelText: "\u2191 Send Port",
+                  ),
                 ),
               ),
-              const SizedBox(height: 8),
-              TextFormField(
-                controller: rcvPortController,
-                keyboardType: TextInputType.number,
-                validator: validatePort,
-                decoration: const InputDecoration(
-                  border: OutlineInputBorder(),
-                  labelText: "\u2193 Receive Port",
+              Padding(
+                padding: const EdgeInsets.all(12),
+                child: TextFormField(
+                  controller: rcvPortController,
+                  keyboardType: TextInputType.number,
+                  validator: validatePort,
+                  decoration: const InputDecoration(
+                    border: OutlineInputBorder(),
+                    labelText: "\u2193 Receive Port",
+                  ),
                 ),
               ),
               Padding(
