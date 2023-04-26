@@ -1,3 +1,4 @@
+import 'package:ardour_remote/assets.dart';
 import 'package:ardour_remote/remote.dart';
 import 'package:flutter/material.dart';
 import 'package:path/path.dart';
@@ -284,7 +285,8 @@ class _ConnectNewPageState extends State<ConnectNewPage> {
               Padding(
                 padding: const EdgeInsets.all(20),
                 child: ElevatedButton.icon(
-                  icon: const Icon(Icons.sensors),
+                  icon: Image.asset(Assets.icons.connect_ardour,
+                      color: Theme.of(context).colorScheme.primary),
                   label: const Text("Connect"),
                   onPressed: () {
                     if (formKey.currentState!.validate()) {
@@ -380,7 +382,9 @@ class ConnectionTile extends StatelessWidget {
     var theme = Theme.of(context);
     return ListTile(
       onTap: onTap,
-      leading: const Icon(Icons.sensors),
+      leading: Image.asset(Assets.icons.connect_ardour,
+        color: theme.colorScheme.onSurface,
+      ),
       title: Text.rich(TextSpan(
           text: mainDesc,
           style: const TextStyle(fontSize: 16),
