@@ -4,7 +4,7 @@
 
 SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
 SVG_FILE=
-BASE_SIZE=
+BASE_SIZE=24
 ASSET_PATH=
 
 while getopts "i:b:a:" opt; do
