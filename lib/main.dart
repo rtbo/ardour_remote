@@ -6,6 +6,8 @@ import 'package:provider/provider.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 
+import 'model/connection.dart';
+
 void main() {
   if (Platform.isLinux || Platform.isWindows) {
     sqfliteFfiInit();

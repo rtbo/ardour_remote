@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import 'connect.dart';
+import 'model/connection.dart';
 
 class RemotePage extends StatefulWidget {
   const RemotePage({super.key, required this.connection});

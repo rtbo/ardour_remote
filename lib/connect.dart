@@ -1,131 +1,10 @@
 import 'package:ardour_remote/assets.dart';
 import 'package:ardour_remote/remote.dart';
 import 'package:flutter/material.dart';
-import 'package:path/path.dart';
-import 'package:sqflite/sqflite.dart';
 
-@immutable
-class Connection {
-  final int? id;
-  final String? name;
-  final String host;
-  final int sendPort;
-  final int rcvPort;
-  final DateTime? lastUsed;
+import 'model/connection.dart';
+import 'model/db.dart';
 
-  const Connection({
-    this.id,
-    this.name,
-    required this.host,
-    required this.sendPort,
-    required this.rcvPort,
-    this.lastUsed,
-  });
-
-  Connection copyWith({
-    int? id,
-    String? name,
-    String? host,
-    int? sendPort,
-    int? rcvPort,
-    DateTime? lastUsed,
-  }) {
-    return Connection(
-      id: id ?? this.id,
-      name: name ?? this.name,
-      host: host ?? this.host,
-      sendPort: sendPort ?? this.sendPort,
-      rcvPort: rcvPort ?? this.rcvPort,
-      lastUsed: lastUsed ?? this.lastUsed,
-    );
-  }
-
-  Connection.fromMap(Map<String, Object?> map)
-      : id = map["id"] as int?,
-        name = map["name"] as String?,
-        host = (map["host"] as String?)!,
-        sendPort = (map["send_port"] as int?)!,
-        rcvPort = (map["rcv_port"] as int?)!,
-        lastUsed = (map["last_used"] as int?).fromDb;
-
-  bool isSame(Connection oth) {
-    return oth.host == host &&
-        oth.sendPort == sendPort &&
-        oth.rcvPort == rcvPort;
-  }
-
-  String connectionDesc() {
-    return "$host\u2191$sendPort\u2193$rcvPort";
-  }
-}
-
-extension on DateTime? {
-  int? get toDb => this?.millisecondsSinceEpoch;
-}
-
-extension on int? {
-  DateTime? get fromDb {
-    final val = this;
-    return val != null ? DateTime.fromMillisecondsSinceEpoch(val) : null;
-  }
-}
-
-class _ConnectionDb {
-  final Database db;
-
-  _ConnectionDb({required this.db});
-
-  static Future<_ConnectionDb> load() async {
-    var path = join(await getDatabasesPath(), "ardour_remote.db");
-    var db = await openDatabase(
-      path,
-      onCreate: (db, version) async {
-        await db.execute('''
-          CREATE TABLE connection (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            name TEXT,
-            host TEXT NOT NULL,
-            send_port INTEGER NOT NULL,
-            rcv_port INTEGER NOT NULL,
-            last_used INTEGER
-          )
-        ''');
-      },
-      version: 1,
-    );
-
-    return _ConnectionDb(db: db);
-  }
-
-  Future<List<Connection>> getAll() async {
-    var connections = <Connection>[];
-    var cursor = await db.rawQueryCursor('''
-        SELECT id, name, host, send_port, rcv_port, last_used
-        FROM connection
-        ORDER BY last_used DESC NULLS LAST
-      ''', null, bufferSize: 10);
-    while (await cursor.moveNext()) {
-      connections.add(Connection.fromMap(cursor.current));
-    }
-    return connections;
-  }
-
-  Future<Connection> insert(Connection c) async {
-    final id = await db.rawInsert('''
-      INSERT INTO connection (name, host, send_port, rcv_port, last_used)
-      VALUES (?, ?, ?, ?, ?)
-    ''', [c.name, c.host, c.sendPort, c.rcvPort, c.lastUsed.toDb]);
-    return c.copyWith(id: id);
-  }
-
-  Future<int> deleteById(int id) async {
-    return db.rawDelete('DELETE FROM connection WHERE id = ?', [id]);
-  }
-
-  Future<void> close() async {
-    return db.close();
-  }
-}
 
 class ConnectionPage extends StatefulWidget {
   const ConnectionPage({super.key});
@@ -135,14 +14,14 @@ class ConnectionPage extends StatefulWidget {
 }
 
 class _ConnectionPageState extends State<ConnectionPage> {
-  _ConnectionDb? db;
+  ConnectionDb? db;
   var connections = <Connection>[];
   var requestNew = false;
 
   @override
   void initState() {
     super.initState();
-    _ConnectionDb.load().then((db) async {
+    ConnectionDb.load().then((db) async {
       var conns = await db.getAll();
       setState(() {
         this.db = db;
