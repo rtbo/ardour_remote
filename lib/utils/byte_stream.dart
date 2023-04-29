@@ -5,17 +5,19 @@ class ByteReadStream {
   int _byteOffset;
   final Endian _endian;
 
-  ByteReadStream(this._byteData, {int offset = 0, Endian endian = Endian.big})
-      : _byteOffset = offset,
+  ByteReadStream(Uint8List data, {int offset = 0, Endian endian = Endian.big})
+      : _byteData =
+            data.buffer.asByteData(data.offsetInBytes, data.lengthInBytes),
+        _byteOffset = offset,
         _endian = endian;
 
-  /// Length of the underlying ByteData
+  /// Length of the underlying buffer view
   int get lengthInBytes => _byteData.lengthInBytes;
 
   /// Remaining bytes in the stream (after [byteOffset])
   int get remainingBytes => lengthInBytes - _byteOffset;
 
-  /// Current read offset in the underlying ByteData
+  /// Current read offset in the underlying buffer view
   int get byteOffset => _byteOffset;
 
   set byteOffset(int val) {
@@ -92,5 +94,86 @@ class ByteReadStream {
   }
 
   Uint8List readBlobCopy([int length = -1]) =>
-      Uint8List.fromList(readBlob(length));
+      Uint8List.fromList(readBlob(length)); // fromList implemented as memcpy
+}
+
+class ByteWriteStream {
+  final ByteData _byteData;
+  int _byteOffset;
+  final Endian _endian;
+
+  ByteWriteStream(Uint8List data, {int offset = 0, Endian endian = Endian.big})
+      : _byteData =
+            data.buffer.asByteData(data.offsetInBytes, data.lengthInBytes),
+        _byteOffset = offset,
+        _endian = endian;
+
+  /// Length of the underlying buffer view
+  int get lengthInBytes => _byteData.lengthInBytes;
+
+  /// Remaining bytes in the stream (after [byteOffset])
+  int get remainingBytes => lengthInBytes - _byteOffset;
+
+  /// Current read offset in the underlying buffer view
+  int get byteOffset => _byteOffset;
+
+  set byteOffset(int val) {
+    if (val < 0 || val > lengthInBytes) {
+      throw RangeError("Attempt to read out of the data range");
+    }
+    _byteOffset = val;
+  }
+
+  /// Move the reading head by [bytes].
+  /// [bytes] can be negative to move backwards.
+  void moveBy(int bytes) {
+    byteOffset = _byteOffset + bytes;
+  }
+
+  void writeInt8(int val) {
+    _byteData.setInt8(_byteOffset, val);
+    moveBy(1);
+  }
+
+  void writeUint8(int val) {
+    _byteData.setUint8(_byteOffset, val);
+    moveBy(1);
+  }
+
+  void writeInt32(int val) {
+    _byteData.setInt32(_byteOffset, val, _endian);
+    moveBy(4);
+  }
+
+  void writeUint32(int val) {
+    _byteData.setUint32(_byteOffset, val, _endian);
+    moveBy(4);
+  }
+
+  void writeInt64(int val) {
+    _byteData.setInt64(_byteOffset, val, _endian);
+    moveBy(8);
+  }
+
+  void writeUint64(int val) {
+    _byteData.setUint64(_byteOffset, val, _endian);
+    moveBy(8);
+  }
+
+  void writeFloat32(double val) {
+    _byteData.setFloat32(_byteOffset, val, _endian);
+    moveBy(4);
+  }
+
+  void writeFloat64(double val) {
+    _byteData.setFloat64(_byteOffset, val, _endian);
+    moveBy(8);
+  }
+
+  void writeBlob(Uint8List val) {
+    final me = _byteData.buffer
+        .asUint8List(_byteData.offsetInBytes, _byteData.lengthInBytes);
+    me.setRange(_byteOffset, _byteOffset + val.lengthInBytes, val);
+    moveBy(val.lengthInBytes);
+  }
 }
