@@ -31,6 +31,7 @@ dependencies:
   flutter:
     sdk: flutter
 
+  async:
   sqflite:
   sqflite_common_ffi:
   path:
