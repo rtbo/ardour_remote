@@ -1,11 +1,11 @@
 import 'dart:io';
 
-import 'package:ardour_remote/connect.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 
+import 'connect.dart';
 import 'model/connection.dart';
 
 void main() {

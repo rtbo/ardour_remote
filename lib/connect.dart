@@ -1,7 +1,7 @@
-import 'package:ardour_remote/assets.dart';
-import 'package:ardour_remote/remote.dart';
 import 'package:flutter/material.dart';
 
+import 'assets.dart';
+import 'remote.dart';
 import 'model/connection.dart';
 import 'model/db.dart';
 
