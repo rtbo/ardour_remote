@@ -109,6 +109,7 @@ class _ConnectNewPageState extends State<ConnectNewPage> {
           key: formKey,
           child: Column(
             children: [
+              const SizedBox(height: 20),
               Padding(
                 padding: const EdgeInsets.all(12),
                 child: TextFormField(
@@ -138,26 +139,33 @@ class _ConnectNewPageState extends State<ConnectNewPage> {
               ),
               Padding(
                 padding: const EdgeInsets.all(12),
-                child: TextFormField(
-                  controller: sendPortController,
-                  keyboardType: TextInputType.number,
-                  validator: validatePort,
-                  decoration: const InputDecoration(
-                    border: OutlineInputBorder(),
-                    labelText: "\u2191 Send Port",
-                  ),
-                ),
-              ),
-              Padding(
-                padding: const EdgeInsets.all(12),
-                child: TextFormField(
-                  controller: rcvPortController,
-                  keyboardType: TextInputType.number,
-                  validator: validatePort,
-                  decoration: const InputDecoration(
-                    border: OutlineInputBorder(),
-                    labelText: "\u2193 Receive Port",
-                  ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Expanded(
+                      child: TextFormField(
+                        controller: sendPortController,
+                        keyboardType: TextInputType.number,
+                        validator: validatePort,
+                        decoration: const InputDecoration(
+                          border: OutlineInputBorder(),
+                          labelText: "\u2191 Send Port",
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: TextFormField(
+                        controller: rcvPortController,
+                        keyboardType: TextInputType.number,
+                        validator: validatePort,
+                        decoration: const InputDecoration(
+                          border: OutlineInputBorder(),
+                          labelText: "\u2193 Receive Port",
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
               ),
               Padding(
