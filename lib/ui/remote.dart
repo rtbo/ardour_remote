@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-import 'assets.dart';
-import 'model/ardour_remote.dart';
-import 'model/connection.dart';
+import '../assets.dart';
+import '../model/ardour_remote.dart';
+import '../model/connection.dart';
 
 class RemotePage extends StatelessWidget {
   const RemotePage({super.key, required this.connection});

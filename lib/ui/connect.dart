@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 
-import 'assets.dart';
+import '../assets.dart';
 import 'remote.dart';
-import 'model/connection.dart';
-import 'model/db.dart';
+import '../model/connection.dart';
+import '../model/db.dart';
 
 class ConnectionPage extends StatefulWidget {
   const ConnectionPage({super.key});
