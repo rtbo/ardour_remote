@@ -60,12 +60,23 @@ class OscBool extends OscAtomic {
   bool get asBool => val;
 
   @override
+  int get asInt => val ? 1 : 0;
+
+  @override
+  double get asFloat => val ? 1.0 : 0.0;
+
+  @override
   String get typeFlag => val ? "T" : "F";
   @override
   int get encodedSize => 0;
 
   @override
   void _encode(ByteWriteStream stream) {}
+
+  @override
+  String toString() {
+    return "OscBool($val)";
+  }
 }
 
 class OscInt extends OscAtomic {
@@ -82,7 +93,13 @@ class OscInt extends OscAtomic {
   bool get isInt => true;
 
   @override
+  bool get asBool => val != 0;
+
+  @override
   int get asInt => val;
+
+  @override
+  double get asFloat => val.toDouble();
 
   @override
   final String typeFlag;
@@ -94,6 +111,11 @@ class OscInt extends OscAtomic {
     } else {
       stream.writeInt64(val);
     }
+  }
+
+  @override
+  String toString() {
+    return "OscInt($val)";
   }
 }
 
@@ -108,10 +130,16 @@ class OscFloat extends OscAtomic {
   int get encodedSize => typeFlag == "f" ? 4 : 8;
 
   @override
+  bool get asBool => val != 0.0;
+
+  @override
   bool get isFloat => true;
 
   @override
   double get asFloat => val;
+
+  @override
+  int get asInt => val.round();
 
   @override
   final String typeFlag;
@@ -123,6 +151,11 @@ class OscFloat extends OscAtomic {
     } else {
       stream.writeFloat64(val);
     }
+  }
+
+  @override
+  String toString() {
+    return "OscFloat($val)";
   }
 }
 
@@ -161,15 +194,20 @@ class OscString extends OscAtomic {
 
   @override
   void _encode(ByteWriteStream stream) {
-    final chars = utf8.encode(val);
-    chars.add(0);
-    final alignedLength = alignUp(chars.length);
-    while (chars.length != alignedLength) {
-      chars.add(0);
+    const encoder = Utf8Encoder();
+    final Uint8List chars = encoder.convert(val);
+    var len = chars.lengthInBytes;
+    final alignedLength = alignUp(len + 1);
+    stream.writeBlob(chars);
+    while (len != alignedLength) {
+      stream.writeUint8(0);
+      len++;
     }
-    for (final c in chars) {
-      stream.writeUint8(c);
-    }
+  }
+
+  @override
+  String toString() {
+    return 'OscString("$val")';
   }
 }
 
@@ -207,6 +245,11 @@ class OscBlob extends OscAtomic {
       remainToAlign--;
     }
   }
+
+  @override
+  String toString() {
+    return "OscBlob($val)";
+  }
 }
 
 int alignUp(int sz) {
@@ -218,7 +261,8 @@ class OscMessage {
   final String address;
   final List<OscAtomic> arguments;
 
-  OscMessage(this.address, this.arguments);
+  OscMessage(this.address, [List<OscAtomic>? arguments])
+      : arguments = arguments ?? [];
 
   factory OscMessage.decode(Uint8List data) {
     final stream = ByteReadStream(data);
@@ -227,7 +271,7 @@ class OscMessage {
       throw Exception("invalid OSC address: ${address.val}");
     }
     if (stream.remainingBytes == 0) {
-      return OscMessage(address.val, []);
+      return OscMessage(address.val);
     }
 
     final tagList = OscString._decode(stream);
@@ -260,5 +304,22 @@ class OscMessage {
     }
     assert(stream.remainingBytes == 0);
     return data;
+  }
+
+  @override
+  String toString() {
+    String res = 'OscMessage("$address"';
+
+    if (arguments.isNotEmpty) {
+      res += ", [";
+      arguments.asMap().forEach((index, arg) {
+        res += arg.toString();
+        if (index < arguments.length - 1) {
+          res += ", ";
+        }
+      });
+      res += "]";
+    }
+    return "$res)";
   }
 }
