@@ -16,7 +16,11 @@ class OscChannel {
     sendPort.send(_Endpoint(address, connection.sendPort));
 
     final receivePort = ReceivePort("OscChannel.receive");
-    await Isolate.spawn(_receiveIsolate, receivePort.sendPort);
+    final rcvIsolate = await Isolate.spawn(
+        _receiveIsolate, receivePort.sendPort,
+        paused: true);
+    rcvIsolate.addErrorListener(receivePort.sendPort);
+    rcvIsolate.resume(rcvIsolate.pauseCapability!);
     final receiveQueue = StreamQueue(receivePort);
     final SendPort receiveCommandPort = await receiveQueue.next;
     receiveCommandPort.send(_Endpoint(address, connection.rcvPort));
@@ -56,7 +60,7 @@ void _receiveIsolate(SendPort p) async {
   final rcv = ReceivePort();
   p.send(rcv.sendPort);
   final _Endpoint ep = await rcv.first;
-  final socket = await RawDatagramSocket.bind(ep.address, ep.port);
+  final socket = await RawDatagramSocket.bind(InternetAddress.anyIPv4, ep.port);
   await for (final event in socket) {
     if (event == RawSocketEvent.read) {
       final d = socket.receive()!;
