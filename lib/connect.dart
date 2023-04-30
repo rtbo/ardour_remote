@@ -5,7 +5,6 @@ import 'remote.dart';
 import 'model/connection.dart';
 import 'model/db.dart';
 
-
 class ConnectionPage extends StatefulWidget {
   const ConnectionPage({super.key});
 
@@ -252,7 +251,7 @@ class ConnectionTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    var mainDesc = connection.connectionDesc();
+    var mainDesc = connection.toString();
     var secondDesc = "";
     if ((connection.name ?? "").isNotEmpty) {
       secondDesc = "  $mainDesc";
@@ -261,7 +260,8 @@ class ConnectionTile extends StatelessWidget {
     var theme = Theme.of(context);
     return ListTile(
       onTap: onTap,
-      leading: Image.asset(Assets.icons.connect_ardour,
+      leading: Image.asset(
+        Assets.icons.connect_ardour,
         color: theme.colorScheme.onSurface,
       ),
       title: Text.rich(TextSpan(

@@ -39,7 +39,8 @@ class Connection {
         oth.rcvPort == rcvPort;
   }
 
-  String connectionDesc() {
+  @override
+  String toString() {
     return "$host\u2191$sendPort\u2193$rcvPort";
   }
 }
