@@ -1,9 +1,15 @@
+import 'dart:ui';
+
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import '../ardour_mock.dart';
 import '../assets.dart';
 import '../model/ardour_remote.dart';
 import '../model/connection.dart';
+
+const useRemoteMock = true;
 
 extension on BuildContext {
   /// is dark mode currently enabled?

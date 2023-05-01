@@ -1,6 +1,5 @@
 import 'dart:async';
 import 'dart:developer';
-import 'dart:io';
 
 import 'package:async/async.dart';
 import 'package:flutter/material.dart';
@@ -40,11 +39,27 @@ class ArdourRemote with ChangeNotifier {
   var speed = 0.0;
   var recordArmed = false;
 
-  OscChannel? _channel;
-
   ArdourRemote(this.connection);
 
-  void init() async {
+  Future connect() async {}
+  void disconnect() {}
+
+  void play() {}
+  void stop() {}
+  void stopAndTrash() {}
+  void recordArmToggle() {}
+  void toStart() {}
+  void toEnd() {}
+  void jumpBars(int bars) {}
+}
+
+class ArdourRemoteImpl extends ArdourRemote {
+  OscChannel? _channel;
+
+  ArdourRemoteImpl(super.connection);
+
+  @override
+  Future connect() async {
     connected = false;
     error = null;
 
@@ -76,18 +91,25 @@ class ArdourRemote with ChangeNotifier {
     }
   }
 
+  @override
   void play() => _sendMsg(OscMessage("/transport/play"));
 
+  @override
   void stop() => _sendMsg(OscMessage("/transport/stop"));
 
+  @override
   void stopAndTrash() => _sendMsg(OscMessage("/stop_forget"));
 
+  @override
   void recordArmToggle() => _sendMsg(OscMessage("/rec_enable_toggle"));
 
+  @override
   void toStart() => _sendMsg(OscMessage("/goto_start"));
 
+  @override
   void toEnd() => _sendMsg(OscMessage("/goto_end"));
 
+  @override
   void jumpBars(int bars) => _sendMsg(OscMessage("/jump_bars", [OscInt(bars)]));
 
   void _sendMsg(OscMessage msg) => _channel!.send(msg);
