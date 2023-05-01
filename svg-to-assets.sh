@@ -61,9 +61,9 @@ len_sz=${#SIZES[@]}
 for ((ii=0;ii<$len_sz;ii++));
 do
     SZ=${SIZES[$ii]}
-    FILE="$ASSETS_DIR/$ASSET_DIR/$SZ/$ASSET_NAME.png"
+    FILE="$ASSETS_DIR/$ASSET_DIR/${SZ}x/$ASSET_NAME.png"
     WIDTH=$( echo "$SZ * $BASE_SIZE / 1" | bc )
-    mkdir -p "$ASSETS_DIR/$ASSET_DIR/$SZ"
+    mkdir -p "$ASSETS_DIR/$ASSET_DIR/${SZ}x"
 
     echo "exporting $FILE (${WIDTH}px)"
 
