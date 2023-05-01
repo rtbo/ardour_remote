@@ -1,21 +1,29 @@
+import 'package:dynamic_color/dynamic_color.dart';
 import 'package:flutter/material.dart';
 
 import 'connect.dart';
 
+const _defaultLightColorScheme = ColorScheme.light();
+const _defaultDarkColorScheme = ColorScheme.dark();
+
 class App extends StatelessWidget {
   const App({super.key});
 
-  // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Ardour Remote',
-      theme: ThemeData(
-        useMaterial3: true,
-        colorScheme: ColorScheme.fromSeed(
-            seedColor: const Color.fromARGB(255, 75, 51, 180)),
-      ),
-      home: const ConnectionPage(),
-    );
+    return DynamicColorBuilder(builder: (lightColorScheme, darkColorScheme) {
+      return MaterialApp(
+        title: 'Ardour Remote',
+        theme: ThemeData(
+          colorScheme: lightColorScheme ?? _defaultLightColorScheme,
+          useMaterial3: true,
+        ),
+        darkTheme: ThemeData(
+          colorScheme: darkColorScheme ?? _defaultDarkColorScheme,
+          useMaterial3: true,
+        ),
+        home: const ConnectionPage(),
+      );
+    });
   }
 }
