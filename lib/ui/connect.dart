@@ -171,7 +171,7 @@ class _ConnectNewPageState extends State<ConnectNewPage> {
               Padding(
                 padding: const EdgeInsets.all(20),
                 child: ElevatedButton.icon(
-                  icon: Image.asset(Assets.icons.connect_ardour,
+                  icon: Image.asset(Assets.icons.ardour_connect,
                       color: Theme.of(context).colorScheme.primary),
                   label: const Text("Connect"),
                   onPressed: () {
@@ -269,7 +269,7 @@ class ConnectionTile extends StatelessWidget {
     return ListTile(
       onTap: onTap,
       leading: Image.asset(
-        Assets.icons.connect_ardour,
+        Assets.icons.ardour_connect,
         color: theme.colorScheme.onSurface,
       ),
       title: Text.rich(TextSpan(
