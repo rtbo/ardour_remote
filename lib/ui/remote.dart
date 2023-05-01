@@ -5,6 +5,14 @@ import '../assets.dart';
 import '../model/ardour_remote.dart';
 import '../model/connection.dart';
 
+extension on BuildContext {
+  /// is dark mode currently enabled?
+  bool get isDarkMode {
+    final brightness = MediaQuery.of(this).platformBrightness;
+    return brightness == Brightness.dark;
+  }
+}
+
 class RemotePage extends StatelessWidget {
   const RemotePage({super.key, required this.connection});
   final Connection connection;
@@ -12,28 +20,34 @@ class RemotePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ChangeNotifierProvider(
-      create: (context) => ArdourRemote(connection),
-      child: RemoteScreen(connection: connection),
+      create: (context) {
+        if (kReleaseMode) {
+          return ArdourRemoteImpl(connection);
+        } else {
+          return ArdourRemoteMock(connection);
+        }
+      },
+      child: RemoteLoader(connection: connection),
     );
   }
 }
 
-class RemoteScreen extends StatefulWidget {
-  const RemoteScreen({super.key, required this.connection});
+class RemoteLoader extends StatefulWidget {
+  const RemoteLoader({super.key, required this.connection});
 
   final Connection connection;
 
   @override
-  State<RemoteScreen> createState() => _RemoteScreenState();
+  State<RemoteLoader> createState() => _RemoteLoaderState();
 }
 
-class _RemoteScreenState extends State<RemoteScreen> {
+class _RemoteLoaderState extends State<RemoteLoader> {
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
       final remote = Provider.of<ArdourRemote>(context, listen: false);
-      remote.init();
+      remote.connect();
     });
   }
 
@@ -45,40 +59,13 @@ class _RemoteScreenState extends State<RemoteScreen> {
   @override
   Widget build(BuildContext context) {
     final remote = context.watch<ArdourRemote>();
-    final theme = Theme.of(context);
-    final conn = widget.connection;
-    Widget body;
     if (remote.connected) {
-      body = Text("Connected to ${conn.toString()}");
+      return const RemoteScreen();
     } else if (remote.error != null) {
       return RemoteError(errorText: remote.error!);
     } else {
       return const WaitConnection();
     }
-
-    final colorAppBar = theme.colorScheme.primary;
-    final colorOnAppBar = theme.colorScheme.onPrimary;
-    return Scaffold(
-      appBar: AppBar(
-          backgroundColor: colorAppBar,
-          leading: IconButton(
-            icon: Icon(
-              Icons.arrow_back,
-              color: colorOnAppBar,
-            ),
-            onPressed: () {
-              Navigator.of(context).pop();
-            },
-          ),
-          title: Row(
-            children: [
-              Image.asset(Assets.icons.connect_ardour, color: colorOnAppBar),
-              const SizedBox(width: 8),
-              Text(remote.sessionName, style: TextStyle(color: colorOnAppBar)),
-            ],
-          )),
-      body: body,
-    );
   }
 }
 
@@ -161,5 +148,103 @@ class _WaitConnectionState extends State<WaitConnection>
         ),
       ],
     ));
+  }
+}
+
+class RemoteScreen extends StatelessWidget {
+  const RemoteScreen({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    final remote = context.watch<ArdourRemote>();
+    final theme = Theme.of(context);
+
+    final colorAppBar = theme.colorScheme.primary;
+    final colorOnAppBar = theme.colorScheme.onPrimary;
+    return Scaffold(
+      appBar: AppBar(
+          backgroundColor: colorAppBar,
+          leading: IconButton(
+            icon: Icon(
+              Icons.arrow_back,
+              color: colorOnAppBar,
+            ),
+            onPressed: () {
+              Navigator.of(context).pop();
+            },
+          ),
+          title: Row(
+            children: [
+              Image.asset(Assets.icons.ardour_connect, color: colorOnAppBar),
+              const SizedBox(width: 8),
+              Text(remote.sessionName, style: TextStyle(color: colorOnAppBar)),
+            ],
+          )),
+      body: Column(children: const [
+        TimeInfoRow(),
+        ConnectInfoRow(),
+      ]),
+    );
+  }
+}
+
+class TimeInfoRow extends StatelessWidget {
+  const TimeInfoRow({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    final remote = context.watch<ArdourRemote>();
+    final isDark = context.isDarkMode;
+    final style = TextStyle(
+      fontFamily: 'monospace',
+      color: isDark ? Colors.green[500] : Colors.green[700],
+      fontSize: 14,
+    );
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        Text(remote.timecode, style: style),
+        const SizedBox(width: 12),
+        Text(remote.bbt, style: style),
+      ],
+    );
+  }
+}
+
+class JumpButtonsRow extends StatelessWidget {
+  const JumpButtonsRow({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    // TODO: implement build
+    throw UnimplementedError();
+  }
+}
+
+class RecordingButtonsRow extends StatelessWidget {
+  const RecordingButtonsRow({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    // TODO: implement build
+    throw UnimplementedError();
+  }
+}
+
+class ConnectInfoRow extends StatelessWidget {
+  const ConnectInfoRow({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    final remote = context.watch<ArdourRemote>();
+    final colorHb = remote.heartbeat ? Colors.blue[600] : Colors.blue[900];
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        Icon(Icons.circle, color: colorHb, size: 12),
+        const SizedBox(width: 8),
+        Text(remote.connection.toString()),
+      ],
+    );
   }
 }
