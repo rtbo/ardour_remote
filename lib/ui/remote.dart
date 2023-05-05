@@ -194,24 +194,40 @@ class RemoteScreen extends StatelessWidget {
   }
 }
 
+final speedFormat = NumberFormat("##0.0#");
+
 class TimeInfoRow extends StatelessWidget {
   const TimeInfoRow({super.key});
 
   @override
   Widget build(BuildContext context) {
     final remote = context.watch<ArdourRemote>();
-    final isDark = context.isDarkMode;
+    final isDark = context.isDarkTheme;
     final style = TextStyle(
       fontFamily: 'monospace',
-      color: isDark ? Colors.green[500] : Colors.green[700],
-      fontSize: 14,
+      color: isDark ? Colors.green[400] : Colors.green[800],
+      fontSize: 16,
     );
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.center,
+    final speed = remote.speed;
+    return Stack(
+      alignment: Alignment.center,
       children: [
-        Text(remote.timecode, style: style),
-        const SizedBox(width: 12),
-        Text(remote.bbt, style: style),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Text(remote.timecode, style: style),
+            const SizedBox(width: 12),
+            Text(remote.bbt, style: style),
+          ],
+        ),
+        if (speed != 0 && speed != 1)
+          Positioned(
+              left: MediaQuery.of(context).size.width / 2 + 132,
+              bottom: 0,
+              child: Text(
+                "${speedFormat.format(speed)}x",
+                style: style.copyWith(fontSize: 12),
+              )),
       ],
     );
   }
