@@ -1,7 +1,6 @@
-import 'dart:ui';
-
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
 import '../ardour_mock.dart';
@@ -13,8 +12,15 @@ const useRemoteMock = true;
 
 extension on BuildContext {
   /// is dark mode currently enabled?
-  bool get isDarkMode {
-    final brightness = MediaQuery.of(this).platformBrightness;
+  bool get isDarkTheme {
+    final brightness = Theme.of(this).brightness;
+    return brightness == Brightness.dark;
+  }
+}
+
+extension on ThemeData {
+  /// is dark mode currently enabled?
+  bool get isDark {
     return brightness == Brightness.dark;
   }
 }
@@ -186,10 +192,16 @@ class RemoteScreen extends StatelessWidget {
               Text(remote.sessionName, style: TextStyle(color: colorOnAppBar)),
             ],
           )),
-      body: Column(children: const [
-        TimeInfoRow(),
-        ConnectInfoRow(),
-      ]),
+      body: Padding(
+        padding: const EdgeInsets.symmetric(vertical: 4),
+        child: Column(children: const [
+          TimeInfoRow(),
+          JumpButtonsRow(),
+          RecordingButtonsRow(),
+          Spacer(),
+          ConnectInfoRow(),
+        ]),
+      ),
     );
   }
 }
@@ -238,8 +250,63 @@ class JumpButtonsRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // TODO: implement build
-    throw UnimplementedError();
+    final remote = context.watch<ArdourRemote>();
+    final theme = Theme.of(context);
+    final iconCol = theme.colorScheme.onBackground;
+    const sz = 40.0;
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+      children: [
+        IconButton(
+          icon: Image.asset(Assets.icons.arrow_left_double_bar,
+              width: sz, color: iconCol),
+          iconSize: sz,
+          onPressed: () {
+            remote.toStart();
+          },
+        ),
+        IconButton(
+          icon: Image.asset(Assets.icons.arrow_left_bar,
+              width: sz, color: iconCol),
+          iconSize: sz,
+          onPressed: () {
+            remote.jumpBars(-1);
+          },
+        ),
+        IconButton(
+          icon: Image.asset(Assets.icons.arrow_left_quarter,
+              width: sz, color: iconCol),
+          iconSize: sz,
+          onPressed: () {
+            remote.jumpBeats(-1);
+          },
+        ),
+        IconButton(
+          icon: Image.asset(Assets.icons.arrow_right_quarter,
+              width: sz, color: iconCol),
+          iconSize: sz,
+          onPressed: () {
+            remote.jumpBeats(1);
+          },
+        ),
+        IconButton(
+          icon: Image.asset(Assets.icons.arrow_right_bar,
+              width: sz, color: iconCol),
+          iconSize: sz,
+          onPressed: () {
+            remote.jumpBars(1);
+          },
+        ),
+        IconButton(
+          icon: Image.asset(Assets.icons.arrow_right_double_bar,
+              width: sz, color: iconCol),
+          iconSize: sz,
+          onPressed: () {
+            remote.toEnd();
+          },
+        ),
+      ],
+    );
   }
 }
 
@@ -248,8 +315,7 @@ class RecordingButtonsRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // TODO: implement build
-    throw UnimplementedError();
+    return Placeholder();
   }
 }
 
@@ -259,13 +325,20 @@ class ConnectInfoRow extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final remote = context.watch<ArdourRemote>();
-    final colorHb = remote.heartbeat ? Colors.blue[600] : Colors.blue[900];
+    final isDark = context.isDarkTheme;
+    final onSwatch = isDark ? 400 : 500;
+    final offSwatch = isDark ? 800 : 900;
+    final colorHb =
+        remote.heartbeat ? Colors.blue[onSwatch] : Colors.blue[offSwatch];
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
         Icon(Icons.circle, color: colorHb, size: 12),
         const SizedBox(width: 8),
-        Text(remote.connection.toString()),
+        Text(remote.connection.toString(),
+            style: const TextStyle(
+                fontFamily: 'monospace',
+                fontSize: 14)),
       ],
     );
   }
