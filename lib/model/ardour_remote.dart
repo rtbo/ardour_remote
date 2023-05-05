@@ -36,6 +36,7 @@ class ArdourRemote with ChangeNotifier {
   var timecode = "";
   var playing = false;
   var stopped = false;
+  var tempo = 120.0;
   var speed = 0.0;
   var recordArmed = false;
 
@@ -51,6 +52,8 @@ class ArdourRemote with ChangeNotifier {
   void toStart() {}
   void toEnd() {}
   void jumpBars(int bars) {}
+  void jumpBeats(int beats) {}
+  void jumpTime(double time) {}
 }
 
 class ArdourRemoteImpl extends ArdourRemote {
@@ -110,7 +113,8 @@ class ArdourRemoteImpl extends ArdourRemote {
   void toEnd() => _sendMsg(OscMessage("/goto_end"));
 
   @override
-  void jumpBars(int bars) => _sendMsg(OscMessage("/jump_bars", [OscInt(bars)]));
+  void jumpBars(int bars) =>
+      _sendMsg(OscMessage("/jump_bars", [OscFloat(bars.toDouble())]));
 
   void _sendMsg(OscMessage msg) => _channel!.send(msg);
 

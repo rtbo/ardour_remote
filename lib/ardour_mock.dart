@@ -1,10 +1,13 @@
 import 'dart:async';
 
-import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart';
 
 import 'model/ardour_remote.dart';
 
 const _timerPeriodMs = 200;
+const _mockTempo = 120.0;
+const _mockDuration = 120.0;
+const _mockSig = 4; // beats per bar
 
 /// An Ardour session mock (2 min, 120 bpm , 4/4)
 class ArdourRemoteMock extends ArdourRemote {
@@ -25,6 +28,7 @@ class ArdourRemoteMock extends ArdourRemote {
     playing = false;
     stopped = true;
     speed = 0.0;
+    tempo = _mockTempo;
     recordArmed = false;
     connected = true;
     _hbTimer = Timer.periodic(const Duration(milliseconds: 800), (timer) {
@@ -85,15 +89,51 @@ class ArdourRemoteMock extends ArdourRemote {
   void toStart() => _gotoMs(0);
 
   @override
-  void toEnd() => _gotoMs(120000);
+  void toEnd() => _gotoMs(_mockDuration * 1000);
+
+  // bars and beat are counted zero based
+  // (although displayed 1 based)
 
   @override
   void jumpBars(int bars) {
-    _gotoMs((_bar + bars - 1) * 2000);
+    if (bars == 0) return;
+
+    var b = _bar;
+
+    final opp = bars > 0 ? -1 : 1;
+    final whole = bars > 0 ? b.ceilToDouble() : b.roundToDouble();
+
+    if (b != whole) {
+      bars += opp;
+    }
+
+    _gotoMs((whole + bars) * _barMs);
+  }
+
+  @override
+  void jumpBeats(int beats) {
+    if (beats == 0) return;
+
+    final b = _beat;
+
+    final opp = beats > 0 ? -1 : 1;
+    final whole = beats > 0 ? b.ceilToDouble() : b.roundToDouble();
+
+    if (b != whole) {
+      beats += opp;
+    }
+
+    _gotoMs((whole + beats) * _beatMs);
+  }
+
+  @override
+  void jumpTime(double time) {
+    _gotoMs(_playheadMs + time * 1000);
   }
 
   void _gotoMs(double ms) {
-    _playheadMs = ms;
+    _playheadMs = clampDouble(ms, 0, 120000);
+    print("going to ${_playheadMs / 1000}s");
     _computeBbtTimecode();
     notifyListeners();
   }
@@ -118,27 +158,30 @@ class ArdourRemoteMock extends ArdourRemote {
   }
 
   void _computeBbtTimecode() {
-    // a bar at 120 bpm is 2 seconds
-    // a beat is 0.5 seconds
     // Ardour defines 1920 ticks per beat
     final bar = _bar;
-    final beatF = 1 + _playheadMs / 500 - (bar - 1) * 4;
-    final beat = beatF.floor();
-    final ticks = ((beatF - beat) * 1920).floor();
-    final barTxt = _bar.toString().padLeft(3, "0");
-    final beatTxt = beat.toString().padLeft(2, "0");
+    final barI = bar.floor();
+    final beat = _beat - barI * _mockSig;
+    final beatI = beat.floor();
+    final ticks = ((beat - beatI) * 1920).floor();
+    final barTxt = (barI + 1).toString().padLeft(3, "0");
+    final beatTxt = (beatI + 1).toString().padLeft(2, "0");
     final ticksTxt = ticks.toString().padLeft(4, "0");
     bbt = "$barTxt|$beatTxt|$ticksTxt";
 
     // 25 fps
     final minutes = (_playheadMs / 60000).floor();
     final seconds = (_playheadMs / 1000).floor() - minutes * 60;
-    final frames = (_playheadMs / 40).floor() - minutes * 60 - seconds * 25;
+    final frames =
+        (_playheadMs / 40).floor() - minutes * 60 * 25 - seconds * 25;
     final minutesTxt = minutes.toString().padLeft(2, "0");
     final secondsTxt = seconds.toString().padLeft(2, "0");
     final framesTxt = frames.toString().padLeft(2, "0");
     timecode = "00:$minutesTxt:$secondsTxt:$framesTxt";
   }
 
-  int get _bar => 1 + (_playheadMs / 2000).floor();
+  double get _bar => _playheadMs / _barMs;
+  double get _beat => _playheadMs / _beatMs;
+  double get _barMs => _mockSig * _beatMs;
+  double get _beatMs => 60000 / tempo;
 }
