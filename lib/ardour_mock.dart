@@ -58,6 +58,8 @@ class ArdourRemoteMock extends ArdourRemote {
   @override
   void play() {
     speed = 1.0;
+    playing = true;
+    stopped = false;
     _lastPlayheadMs = _playheadMs;
     _enableTimer();
     notifyListeners();
@@ -66,6 +68,8 @@ class ArdourRemoteMock extends ArdourRemote {
   @override
   void stop() {
     speed = 0.0;
+    playing = false;
+    stopped = true;
     _disableTimer();
     notifyListeners();
   }
@@ -73,6 +77,8 @@ class ArdourRemoteMock extends ArdourRemote {
   @override
   void stopAndTrash() {
     speed = 0.0;
+    playing = false;
+    stopped = true;
     _disableTimer();
     _playheadMs = _lastPlayheadMs;
     _computeBbtTimecode();

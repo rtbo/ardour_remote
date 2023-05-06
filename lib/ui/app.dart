@@ -20,13 +20,14 @@ class App extends StatelessWidget {
 
       return MaterialApp(
         title: 'Ardour Remote',
+        debugShowCheckedModeBanner: false,
         theme: ThemeData(
-          colorScheme: forceDark ? dark : light,
           useMaterial3: true,
+          colorScheme: forceDark ? dark : light,
         ),
         darkTheme: ThemeData(
-          colorScheme: forceLight ? light : dark,
           useMaterial3: true,
+          colorScheme: forceLight ? light : dark,
         ),
         home: const ConnectionPage(),
       );

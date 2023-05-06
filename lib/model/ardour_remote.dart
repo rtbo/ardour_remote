@@ -42,6 +42,12 @@ class ArdourRemote with ChangeNotifier {
 
   ArdourRemote(this.connection);
 
+  @override
+  void dispose() {
+    disconnect();
+    super.dispose();
+  }
+
   Future connect() async {}
   void disconnect() {}
 
