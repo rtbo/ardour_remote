@@ -13,4 +13,8 @@ class _Icons {
   final arrow_right_double_bar = "assets/icons/arrow_right_double_bar.png";
   final arrow_right_bar = "assets/icons/arrow_right_bar.png";
   final arrow_right_quarter = "assets/icons/arrow_right_quarter.png";
+  final record = "assets/icons/record.png";
+  final play = "assets/icons/play.png";
+  final stop = "assets/icons/stop.png";
+  final stop_trash = "assets/icons/stop_trash.png";
 }
