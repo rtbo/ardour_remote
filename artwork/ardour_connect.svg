@@ -8,7 +8,7 @@
    version="1.1"
    id="svg1434"
    inkscape:version="1.2.2 (b0a8486541, 2022-12-01)"
-   sodipodi:docname="connect_ardour.svg"
+   sodipodi:docname="ardour_connect.svg"
    xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
    xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
    xmlns="http://www.w3.org/2000/svg"
@@ -24,11 +24,11 @@
      inkscape:deskcolor="#505050"
      inkscape:document-units="px"
      showgrid="true"
-     inkscape:zoom="10.257703"
-     inkscape:cx="9.2125893"
-     inkscape:cy="7.7990174"
-     inkscape:window-width="1600"
-     inkscape:window-height="831"
+     inkscape:zoom="14.43648"
+     inkscape:cx="9.3166754"
+     inkscape:cy="8.9356961"
+     inkscape:window-width="1920"
+     inkscape:window-height="1011"
      inkscape:window-x="0"
      inkscape:window-y="0"
      inkscape:window-maximized="1"
@@ -39,6 +39,14 @@
        orientation="1,0"
        id="guide15433"
        inkscape:locked="false" />
+    <inkscape:grid
+       type="xygrid"
+       id="grid3486"
+       empspacing="4"
+       color="#8f8fff"
+       opacity="0.1254902"
+       empcolor="#bfbfff"
+       empopacity="0.25098039" />
   </sodipodi:namedview>
   <defs
      id="defs1431">
