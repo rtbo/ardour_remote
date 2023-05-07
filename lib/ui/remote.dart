@@ -35,6 +35,14 @@ extension on ArdourRemote {
   }
 }
 
+class Breakpoints {
+  static const sm = 576;
+  static const md = 768;
+  static const lg = 992;
+  static const xl = 1200;
+  static const xxl = 1400;
+}
+
 class RemotePage extends StatelessWidget {
   const RemotePage({super.key, required this.connection});
   final Connection connection;
@@ -166,44 +174,82 @@ class RemoteScreen extends StatelessWidget {
     final colorAppBar = colorScheme.primary;
     final colorOnAppBar = colorScheme.onPrimary;
 
+    return LayoutBuilder(builder: (context, constraints) {
+      print("width = ${constraints.maxWidth}");
+      print("height = ${constraints.maxHeight}");
+      final appBarHeight = constraints.maxHeight < Breakpoints.sm ? 48.0 : 56.0;
+      return Scaffold(
+        appBar: AppBar(
+            toolbarHeight: appBarHeight,
+            backgroundColor: colorAppBar,
+            leading: IconButton(
+              style: IconButton.styleFrom(backgroundColor: colorAppBar),
+              icon: Icon(
+                Icons.arrow_back,
+                color: colorOnAppBar,
+              ),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+            title: Row(
+              children: [
+                Image.asset(Assets.icons.ardour_connect, color: colorOnAppBar),
+                const SizedBox(width: 8),
+                Text(remote.sessionName,
+                    style: TextStyle(color: colorOnAppBar)),
+              ],
+            )),
+        body: Padding(
+          padding: const EdgeInsets.symmetric(vertical: 4),
+          child: RemoteBody(constraints: constraints),
+        ),
+      );
+    });
+  }
+}
+
+class RemoteBody extends StatelessWidget {
+  const RemoteBody({super.key, required this.constraints});
+  // constraints of the full window, including AppBar!
+  final BoxConstraints constraints;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
     final butStyle = IconButton.styleFrom(
       backgroundColor: colorScheme.surfaceVariant.withOpacity(0.6),
       disabledBackgroundColor: colorScheme.surfaceVariant.withOpacity(0.3),
     );
 
-    return Scaffold(
-      appBar: AppBar(
-          backgroundColor: colorAppBar,
-          leading: IconButton(
-            style: IconButton.styleFrom(backgroundColor: colorAppBar),
-            icon: Icon(
-              Icons.arrow_back,
-              color: colorOnAppBar,
-            ),
-            onPressed: () {
-              Navigator.of(context).pop();
-            },
-          ),
-          title: Row(
-            children: [
-              Image.asset(Assets.icons.ardour_connect, color: colorOnAppBar),
-              const SizedBox(width: 8),
-              Text(remote.sessionName, style: TextStyle(color: colorOnAppBar)),
-            ],
-          )),
-      body: Padding(
-        padding: const EdgeInsets.symmetric(vertical: 4),
-        child: Column(children: [
-          const TimeInfoRow(),
-          const SizedBox(height: 24),
-          JumpButtonsRow(butStyle: butStyle),
-          const SizedBox(height: 24),
-          RecordingButtonsRow(butStyle: butStyle),
-          const Spacer(),
-          const ConnectInfoRow(),
-        ]),
-      ),
-    );
+    if (constraints.maxWidth < Breakpoints.md) {
+      return Column(children: [
+        const TimeInfoRow(),
+        const SizedBox(height: 24),
+        JumpButtonsRow(butStyle: butStyle),
+        const SizedBox(height: 24),
+        RecordingButtonsRow(butStyle: butStyle),
+        const Spacer(),
+        const ConnectInfoRow(),
+      ]);
+    } else {
+      return Column(children: [
+        const TimeInfoRow(),
+        const SizedBox(height: 24),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            JumpButtonsRow(butStyle: butStyle),
+            const SizedBox(width: 24),
+            RecordingButtonsRow(butStyle: butStyle),
+          ],
+        ),
+        const SizedBox(height: 24),
+        const Spacer(),
+        const ConnectInfoRow(),
+      ]);
+    }
   }
 }
 
@@ -257,8 +303,9 @@ class JumpButtonsRow extends StatelessWidget {
     final theme = Theme.of(context);
     final iconCol = theme.colorScheme.onBackground;
     const sz = 36.0;
+    const space = 8.0;
     return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+      mainAxisAlignment: MainAxisAlignment.center,
       children: [
         IconButton(
           icon: Image.asset(Assets.icons.arrow_left_double_bar,
@@ -269,6 +316,7 @@ class JumpButtonsRow extends StatelessWidget {
             remote.toStart();
           },
         ),
+        const SizedBox(width: space),
         IconButton(
           icon: Image.asset(Assets.icons.arrow_left_bar,
               width: sz, color: iconCol),
@@ -278,6 +326,7 @@ class JumpButtonsRow extends StatelessWidget {
             remote.jumpBars(-1);
           },
         ),
+        const SizedBox(width: space),
         IconButton(
           icon: Image.asset(Assets.icons.arrow_left_quarter,
               width: sz, color: iconCol),
@@ -287,6 +336,7 @@ class JumpButtonsRow extends StatelessWidget {
             remote.jumpBeats(-1);
           },
         ),
+        const SizedBox(width: space),
         IconButton(
           icon: Image.asset(Assets.icons.arrow_right_quarter,
               width: sz, color: iconCol),
@@ -296,6 +346,7 @@ class JumpButtonsRow extends StatelessWidget {
             remote.jumpBeats(1);
           },
         ),
+        const SizedBox(width: space),
         IconButton(
           icon: Image.asset(Assets.icons.arrow_right_bar,
               width: sz, color: iconCol),
@@ -305,6 +356,7 @@ class JumpButtonsRow extends StatelessWidget {
             remote.jumpBars(1);
           },
         ),
+        const SizedBox(width: space),
         IconButton(
           icon: Image.asset(Assets.icons.arrow_right_double_bar,
               width: sz, color: iconCol),
@@ -367,6 +419,7 @@ class RecordingButtonsRow extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     const sz = 56.0;
+    const space = 16.0;
     final remote = context.watch<ArdourRemote>();
     final theme = Theme.of(context);
     final isDark = theme.isDark;
@@ -383,9 +436,10 @@ class RecordingButtonsRow extends StatelessWidget {
             size: sz,
             style: butStyle);
     return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+      mainAxisAlignment: MainAxisAlignment.center,
       children: [
         recordBut,
+        const SizedBox(width: space),
         IconButton(
           icon: Image.asset(Assets.icons.play,
               width: sz,
@@ -400,6 +454,7 @@ class RecordingButtonsRow extends StatelessWidget {
                   remote.play();
                 },
         ),
+        const SizedBox(width: space),
         IconButton(
           icon: Image.asset(Assets.icons.stop,
               width: sz,
@@ -413,6 +468,7 @@ class RecordingButtonsRow extends StatelessWidget {
                   remote.stop();
                 },
         ),
+        const SizedBox(width: space),
         IconButton(
           icon: Image.asset(Assets.icons.stop_trash,
               width: sz,
@@ -524,7 +580,8 @@ class ConnectInfoRow extends StatelessWidget {
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        Heartbeat(isDark: context.isDarkTheme,isOn: remote.heartbeat, size: 12),
+        Heartbeat(
+            isDark: context.isDarkTheme, isOn: remote.heartbeat, size: 12),
         const SizedBox(width: 8),
         Text(remote.connection.toString(),
             style: const TextStyle(fontFamily: 'monospace', fontSize: 14)),
