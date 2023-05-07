@@ -2,7 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/foundation.dart';
 
-import 'model/ardour_remote.dart';
+import 'ardour_remote.dart';
 
 const _timerPeriodMs = 200;
 const _mockTempo = 120.0;

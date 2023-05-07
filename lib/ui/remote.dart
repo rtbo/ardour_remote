@@ -4,8 +4,8 @@ import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:wakelock/wakelock.dart';
 
-import '../ardour_mock.dart';
 import '../assets.dart';
+import '../model/ardour_mock.dart';
 import '../model/ardour_remote.dart';
 import '../model/connection.dart';
 
