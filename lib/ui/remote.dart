@@ -52,7 +52,7 @@ class RemotePage extends StatelessWidget {
   Widget build(BuildContext context) {
     return ChangeNotifierProvider(
       create: (context) {
-        if (kReleaseMode) {
+        if (kReleaseMode || connection.host != "mock") {
           return ArdourRemoteImpl(connection)..connect();
         } else {
           return ArdourRemoteMock(connection)..connect();
