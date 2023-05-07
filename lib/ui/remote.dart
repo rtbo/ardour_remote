@@ -193,8 +193,6 @@ class _RemoteScreenState extends State<RemoteScreen> {
     final colorOnAppBar = colorScheme.onPrimary;
 
     return LayoutBuilder(builder: (context, constraints) {
-      print("width = ${constraints.maxWidth}");
-      print("height = ${constraints.maxHeight}");
       final appBarHeight = constraints.maxHeight < Breakpoints.sm ? 48.0 : 56.0;
       return Scaffold(
         appBar: AppBar(
