@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
@@ -174,12 +176,16 @@ class _RemoteScreenState extends State<RemoteScreen> {
   @override
   void initState() {
     super.initState();
-    Wakelock.enable();
+    if (Platform.isAndroid || Platform.isIOS) {
+      Wakelock.enable();
+    }
   }
 
   @override
   void dispose() {
-    Wakelock.disable();
+    if (Platform.isAndroid || Platform.isIOS) {
+      Wakelock.disable();
+    }
     super.dispose();
   }
 
