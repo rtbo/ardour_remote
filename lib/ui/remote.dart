@@ -420,7 +420,7 @@ const lightButPalette = ButtonPalette(
 
 const darkButPalette = ButtonPalette(
     record: Color.fromARGB(255, 236, 68, 68),
-    recordOff: Color.fromARGB(255, 131, 30, 30),
+    recordOff: Color.fromARGB(255, 97, 22, 22),
     recordDisabled: Color.fromARGB(255, 61, 44, 44),
     play: Color.fromARGB(255, 122, 214, 135),
     playDisabled: Color.fromARGB(255, 58, 100, 64),
@@ -632,7 +632,7 @@ class _HeartbeatState extends State<Heartbeat>
     super.initState();
     final palette = widget.isDark ? darkButPalette : lightButPalette;
     controller = AnimationController(
-        vsync: this, duration: const Duration(milliseconds: 200));
+        vsync: this, duration: const Duration(milliseconds: 260));
     tween = ColorTween(begin: palette.heartbeatOff, end: palette.heartbeatOn);
     animation = tween
         .animate(CurvedAnimation(parent: controller, curve: Curves.easeInOut));
