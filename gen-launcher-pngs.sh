@@ -20,3 +20,12 @@ do
         "artwork/$L.svg"
 
 done
+
+# specific windows launcher
+echo "exporting assets/launchers/launcher_windows.png"
+
+inkscape \
+    --export-filename="assets/launchers/launcher_windows.png" \
+    --export-area-page \
+    --export-width=128 \
+    "artwork/launcher_windows.svg"
