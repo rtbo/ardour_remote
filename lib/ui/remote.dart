@@ -439,16 +439,16 @@ class RecordingButtonsRow extends StatelessWidget {
     final remote = context.watch<ArdourRemote>();
     final theme = Theme.of(context);
     final isDark = theme.isDark;
-    final butPalette = isDark ? darkButPalette : lightButPalette;
+    final palette = isDark ? darkButPalette : lightButPalette;
 
     final recordBut = remote.recordBlink
         ? BlinkRecordButton(
-            color: butPalette.record,
-            colorOff: butPalette.recordOff,
+            color: palette.record,
+            colorOff: palette.recordOff,
             size: sz,
             style: butStyle)
         : SolidRecordButton(
-            color: remote.recording ? butPalette.record : butPalette.recordOff,
+            color: remote.recording ? palette.record : palette.recordOff,
             size: sz,
             style: butStyle);
     return Row(
@@ -461,7 +461,7 @@ class RecordingButtonsRow extends StatelessWidget {
               width: sz,
               height: sz,
               color:
-                  remote.playing ? butPalette.playDisabled : butPalette.play),
+                  remote.playing ? palette.playDisabled : palette.play),
           iconSize: sz,
           style: butStyle,
           onPressed: remote.playing
@@ -475,7 +475,7 @@ class RecordingButtonsRow extends StatelessWidget {
           icon: Image.asset(Assets.icons.stop,
               width: sz,
               color:
-                  remote.stopped ? butPalette.stopDisabled : butPalette.stop),
+                  remote.stopped ? palette.stopDisabled : palette.stop),
           iconSize: sz,
           style: butStyle,
           onPressed: remote.stopped
@@ -489,8 +489,8 @@ class RecordingButtonsRow extends StatelessWidget {
           icon: Image.asset(Assets.icons.stop_trash,
               width: sz,
               color: remote.recording
-                  ? butPalette.record
-                  : butPalette.recordDisabled),
+                  ? palette.record
+                  : palette.recordDisabled),
           iconSize: sz,
           style: butStyle,
           onPressed: remote.recording
