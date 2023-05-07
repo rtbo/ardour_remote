@@ -285,7 +285,7 @@ class ConnectionTile extends StatelessWidget {
                   ))
           ])),
       trailing: IconButton(
-        icon: const Icon(Icons.delete),
+        icon: Icon(Icons.delete, color: theme.colorScheme.onSurface),
         onPressed: () => onRemove(),
       ),
     );
