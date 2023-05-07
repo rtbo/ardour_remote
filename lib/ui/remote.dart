@@ -2,6 +2,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
+import 'package:wakelock/wakelock.dart';
 
 import '../ardour_mock.dart';
 import '../assets.dart';
@@ -162,8 +163,25 @@ class _WaitConnectionState extends State<WaitConnection>
   }
 }
 
-class RemoteScreen extends StatelessWidget {
+class RemoteScreen extends StatefulWidget {
   const RemoteScreen({super.key});
+
+  @override
+  State<RemoteScreen> createState() => _RemoteScreenState();
+}
+
+class _RemoteScreenState extends State<RemoteScreen> {
+  @override
+  void initState() {
+    super.initState();
+    Wakelock.enable();
+  }
+
+  @override
+  void dispose() {
+    Wakelock.disable();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
