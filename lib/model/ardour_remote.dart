@@ -49,7 +49,7 @@ class ArdourRemote with ChangeNotifier {
   }
 
   Future connect() async {}
-  void disconnect() {}
+  Future disconnect() async {}
 
   void play() {}
   void stop() {}
@@ -83,9 +83,12 @@ class ArdourRemoteImpl extends ArdourRemote {
       channel
           .send(OscMessage("/set_surface/port", [OscInt(connection.rcvPort)]));
 
-      final receiver = StreamQueue<OscMessage>(channel.receiver);
+      final receiver = StreamQueue<ChannelMsg>(channel.receiver);
       final fstMsg = await receiver.next.timeout(connectionTimeout);
-      _dispatchMessage(fstMsg);
+      if (fstMsg.close) {
+        throw Exception("Channel closed");
+      }
+      _dispatchMessage(fstMsg.msg!);
 
       receiver.rest.listen(_onReceiveMessage);
 
@@ -98,6 +101,11 @@ class ArdourRemoteImpl extends ArdourRemote {
     } finally {
       notifyListeners();
     }
+  }
+
+  @override
+  Future disconnect() async {
+    await _channel?.close();
   }
 
   @override
@@ -124,8 +132,14 @@ class ArdourRemoteImpl extends ArdourRemote {
 
   void _sendMsg(OscMessage msg) => _channel!.send(msg);
 
-  void _onReceiveMessage(OscMessage msg) {
-    _dispatchMessage(msg);
+  void _onReceiveMessage(ChannelMsg msg) {
+    if (msg.close) {
+      connected = false;
+      error = "Ardour closed the connection";
+      _channel = null;
+    } else {
+      _dispatchMessage(msg.msg!);
+    }
     notifyListeners();
   }
 
@@ -162,6 +176,15 @@ class ArdourRemoteImpl extends ArdourRemote {
         break;
       case "/session_name":
         sessionName = msg.arguments.first.asString!;
+        break;
+      case "/jog/mode/name":
+        // Because of UDP nature, socket will not close when ardour exits.
+        // However Ardour will send this invalid jog mode name when quitting.
+        final name = msg.arguments.first.asString!;
+        if (name == " ") {
+          error = "Ardour closed the connection";
+          connected = false;
+        }
         break;
       default:
         break;
