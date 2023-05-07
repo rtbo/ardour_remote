@@ -319,7 +319,7 @@ class JumpButtonsRow extends StatelessWidget {
     final theme = Theme.of(context);
     final iconCol = theme.colorScheme.onBackground;
     const sz = 36.0;
-    const space = 8.0;
+    const space = 6.0;
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
@@ -435,7 +435,7 @@ class RecordingButtonsRow extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     const sz = 56.0;
-    const space = 16.0;
+    const space = 18.0;
     final remote = context.watch<ArdourRemote>();
     final theme = Theme.of(context);
     final isDark = theme.isDark;
@@ -456,13 +456,10 @@ class RecordingButtonsRow extends StatelessWidget {
       children: [
         recordBut,
         const SizedBox(width: space),
-        IconButton(
-          icon: Image.asset(Assets.icons.play,
-              width: sz,
-              height: sz,
-              color:
-                  remote.playing ? palette.playDisabled : palette.play),
-          iconSize: sz,
+        TransitionIconButton(
+          asset: Assets.icons.play,
+          size: sz,
+          color: remote.playing ? palette.playDisabled : palette.play,
           style: butStyle,
           onPressed: remote.playing
               ? null
@@ -471,12 +468,10 @@ class RecordingButtonsRow extends StatelessWidget {
                 },
         ),
         const SizedBox(width: space),
-        IconButton(
-          icon: Image.asset(Assets.icons.stop,
-              width: sz,
-              color:
-                  remote.stopped ? palette.stopDisabled : palette.stop),
-          iconSize: sz,
+        TransitionIconButton(
+          asset: Assets.icons.stop,
+          size: sz,
+          color: remote.stopped ? palette.stopDisabled : palette.stop,
           style: butStyle,
           onPressed: remote.stopped
               ? null
@@ -485,13 +480,10 @@ class RecordingButtonsRow extends StatelessWidget {
                 },
         ),
         const SizedBox(width: space),
-        IconButton(
-          icon: Image.asset(Assets.icons.stop_trash,
-              width: sz,
-              color: remote.recording
-                  ? palette.record
-                  : palette.recordDisabled),
-          iconSize: sz,
+        TransitionIconButton(
+          asset: Assets.icons.stop_trash,
+          size: sz,
+          color: remote.recording ? palette.record : palette.recordDisabled,
           style: butStyle,
           onPressed: remote.recording
               ? () {
@@ -586,6 +578,74 @@ class _BlinkRecordButtonState extends State<BlinkRecordButton>
   }
 }
 
+const transitionDuration = Duration(milliseconds: 270);
+
+class TransitionIconButton extends StatefulWidget {
+  const TransitionIconButton(
+      {super.key,
+      required this.color,
+      required this.asset,
+      required this.size,
+      required this.style,
+      this.onPressed});
+  final Color color;
+  final String asset;
+  final double size;
+  final ButtonStyle style;
+  final VoidCallback? onPressed;
+
+  @override
+  State<TransitionIconButton> createState() => _TransitionIconButtonState();
+}
+
+class _TransitionIconButtonState extends State<TransitionIconButton>
+    with SingleTickerProviderStateMixin {
+  late AnimationController controller;
+  late ColorTween tween;
+  late Animation<Color?> animation;
+
+  @override
+  void initState() {
+    super.initState();
+    controller = AnimationController(
+        vsync: this, duration: const Duration(milliseconds: 260));
+    tween = ColorTween(begin: widget.color, end: widget.color);
+    animation = tween
+        .animate(CurvedAnimation(parent: controller, curve: Curves.easeInOut));
+    animation.addListener(() {
+      setState(() {});
+    });
+  }
+
+  @override
+  void dispose() {
+    controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  void didUpdateWidget(TransitionIconButton oldWidget) {
+    super.didUpdateWidget(oldWidget);
+
+    if (oldWidget.color != widget.color) {
+      tween.begin = oldWidget.color;
+      tween.end = widget.color;
+      controller.forward(from: 0);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return IconButton(
+      icon:
+          Image.asset(widget.asset, width: widget.size, color: animation.value),
+      iconSize: widget.size,
+      style: widget.style,
+      onPressed: widget.onPressed,
+    );
+  }
+}
+
 class ConnectInfoRow extends StatelessWidget {
   const ConnectInfoRow({super.key});
 
@@ -631,8 +691,7 @@ class _HeartbeatState extends State<Heartbeat>
   void initState() {
     super.initState();
     final palette = widget.isDark ? darkButPalette : lightButPalette;
-    controller = AnimationController(
-        vsync: this, duration: const Duration(milliseconds: 260));
+    controller = AnimationController(vsync: this, duration: transitionDuration);
     tween = ColorTween(begin: palette.heartbeatOff, end: palette.heartbeatOn);
     animation = tween
         .animate(CurvedAnimation(parent: controller, curve: Curves.easeInOut));
