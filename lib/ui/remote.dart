@@ -415,7 +415,7 @@ const lightButPalette = ButtonPalette(
     recordDisabled: Color.fromARGB(255, 61, 44, 44),
     play: Color.fromARGB(255, 37, 146, 52),
     playDisabled: Color.fromARGB(255, 53, 88, 59),
-    stop: Color.fromARGB(255, 73, 105, 209),
+    stop: Color.fromARGB(255, 66, 108, 245),
     stopDisabled: Color.fromARGB(255, 55, 68, 112));
 
 const darkButPalette = ButtonPalette(
