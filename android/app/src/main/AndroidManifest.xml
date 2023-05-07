@@ -1,7 +1,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.example.ardour_remote">
+    package="com.rtbo.ardour_remote">
    <application
-        android:label="ardour_remote"
+        android:label="Ardour Remote"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
         <activity

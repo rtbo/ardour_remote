@@ -89,13 +89,13 @@ BEGIN
     BEGIN
         BLOCK "040904e4"
         BEGIN
-            VALUE "CompanyName", "com.example" "\0"
+            VALUE "CompanyName", "com.rtbo" "\0"
             VALUE "FileDescription", "ardour_remote" "\0"
             VALUE "FileVersion", VERSION_AS_STRING "\0"
             VALUE "InternalName", "ardour_remote" "\0"
-            VALUE "LegalCopyright", "Copyright (C) 2023 com.example. All rights reserved." "\0"
+            VALUE "LegalCopyright", "Copyright (C) 2023 Remi Thebault. All rights reserved." "\0"
             VALUE "OriginalFilename", "ardour_remote.exe" "\0"
-            VALUE "ProductName", "ardour_remote" "\0"
+            VALUE "ProductName", "Ardour Remote" "\0"
             VALUE "ProductVersion", VERSION_AS_STRING "\0"
         END
     END
