@@ -328,6 +328,9 @@ class ButtonPalette {
   final Color stop;
   final Color stopDisabled;
 
+  Color get heartbeatOn => stop;
+  Color get heartbeatOff => stopDisabled;
+
   const ButtonPalette(
       {required this.record,
       required this.recordOff,
@@ -337,6 +340,24 @@ class ButtonPalette {
       required this.stop,
       required this.stopDisabled});
 }
+
+const lightButPalette = ButtonPalette(
+    record: Color.fromARGB(255, 216, 50, 50),
+    recordOff: Color.fromARGB(255, 88, 23, 23),
+    recordDisabled: Color.fromARGB(255, 61, 44, 44),
+    play: Color.fromARGB(255, 37, 146, 52),
+    playDisabled: Color.fromARGB(255, 53, 88, 59),
+    stop: Color.fromARGB(255, 73, 105, 209),
+    stopDisabled: Color.fromARGB(255, 55, 68, 112));
+
+const darkButPalette = ButtonPalette(
+    record: Color.fromARGB(255, 236, 68, 68),
+    recordOff: Color.fromARGB(255, 131, 30, 30),
+    recordDisabled: Color.fromARGB(255, 61, 44, 44),
+    play: Color.fromARGB(255, 122, 214, 135),
+    playDisabled: Color.fromARGB(255, 58, 100, 64),
+    stop: Color.fromARGB(255, 123, 148, 231),
+    stopDisabled: Color.fromARGB(255, 63, 72, 100));
 
 class RecordingButtonsRow extends StatelessWidget {
   const RecordingButtonsRow({super.key, required this.butStyle});
@@ -349,26 +370,8 @@ class RecordingButtonsRow extends StatelessWidget {
     final remote = context.watch<ArdourRemote>();
     final theme = Theme.of(context);
     final isDark = theme.isDark;
-
-    const lightButPalette = ButtonPalette(
-        record: Color.fromARGB(255, 216, 50, 50),
-        recordOff: Color.fromARGB(255, 88, 23, 23),
-        recordDisabled: Color.fromARGB(255, 61, 44, 44),
-        play: Color.fromARGB(255, 37, 146, 52),
-        playDisabled: Color.fromARGB(255, 53, 88, 59),
-        stop: Color.fromARGB(255, 73, 105, 209),
-        stopDisabled: Color.fromARGB(255, 55, 68, 112));
-
-    const darkButPalette = ButtonPalette(
-        record: Color.fromARGB(255, 236, 68, 68),
-        recordOff: Color.fromARGB(255, 131, 30, 30),
-        recordDisabled: Color.fromARGB(255, 61, 44, 44),
-        play: Color.fromARGB(255, 122, 214, 135),
-        playDisabled: Color.fromARGB(255, 58, 100, 64),
-        stop: Color.fromARGB(255, 123, 148, 231),
-        stopDisabled: Color.fromARGB(255, 63, 72, 100));
-
     final butPalette = isDark ? darkButPalette : lightButPalette;
+
     final recordBut = remote.recordBlink
         ? BlinkRecordButton(
             color: butPalette.record,
@@ -517,19 +520,73 @@ class ConnectInfoRow extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final remote = context.watch<ArdourRemote>();
-    final isDark = context.isDarkTheme;
-    final onSwatch = isDark ? 400 : 500;
-    final offSwatch = isDark ? 800 : 900;
-    final colorHb =
-        remote.heartbeat ? Colors.blue[onSwatch] : Colors.blue[offSwatch];
+
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        Icon(Icons.circle, color: colorHb, size: 12),
+        Heartbeat(isDark: context.isDarkTheme,isOn: remote.heartbeat, size: 12),
         const SizedBox(width: 8),
         Text(remote.connection.toString(),
             style: const TextStyle(fontFamily: 'monospace', fontSize: 14)),
       ],
     );
+  }
+}
+
+class Heartbeat extends StatefulWidget {
+  const Heartbeat(
+      {super.key,
+      required this.isDark,
+      required this.isOn,
+      required this.size});
+
+  final bool isDark;
+  final bool isOn;
+  final double size;
+
+  @override
+  State<Heartbeat> createState() => _HeartbeatState();
+}
+
+class _HeartbeatState extends State<Heartbeat>
+    with SingleTickerProviderStateMixin {
+  late AnimationController controller;
+  late ColorTween tween;
+  late Animation<Color?> animation;
+
+  @override
+  void initState() {
+    super.initState();
+    final palette = widget.isDark ? darkButPalette : lightButPalette;
+    controller = AnimationController(
+        vsync: this, duration: const Duration(milliseconds: 200));
+    tween = ColorTween(begin: palette.heartbeatOff, end: palette.heartbeatOn);
+    animation = tween
+        .animate(CurvedAnimation(parent: controller, curve: Curves.easeInOut));
+    animation.addListener(() {
+      setState(() {});
+    });
+  }
+
+  @override
+  void dispose() {
+    controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  void didUpdateWidget(Heartbeat oldWidget) {
+    super.didUpdateWidget(oldWidget);
+
+    if (oldWidget.isOn && !widget.isOn) {
+      controller.forward();
+    } else if (!oldWidget.isOn && widget.isOn) {
+      controller.reverse();
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Icon(Icons.circle, color: animation.value, size: widget.size);
   }
 }
