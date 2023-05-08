@@ -109,10 +109,10 @@ class ArdourRemoteImpl extends ArdourRemote {
   }
 
   @override
-  void play() => _sendMsg(OscMessage("/transport/play"));
+  void play() => _sendMsg(OscMessage("/transport_play"));
 
   @override
-  void stop() => _sendMsg(OscMessage("/transport/stop"));
+  void stop() => _sendMsg(OscMessage("/transport_stop"));
 
   @override
   void stopAndTrash() => _sendMsg(OscMessage("/stop_forget"));
@@ -156,10 +156,10 @@ class ArdourRemoteImpl extends ArdourRemote {
       case "/position/time":
         timecode = msg.arguments.first.asString!;
         break;
-      case "/transport/play":
+      case "/transport_play":
         playing = msg.arguments.first.asInt! != 0;
         break;
-      case "/transport/stop":
+      case "/transport_stop":
         stopped = msg.arguments.first.asInt! != 0;
         break;
       case "/transport/speed":
