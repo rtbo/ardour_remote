@@ -554,9 +554,9 @@ class _BlinkRecordButtonState extends State<BlinkRecordButton>
   void initState() {
     super.initState();
     controller = AnimationController(
-        vsync: this, duration: const Duration(milliseconds: 1000));
+        vsync: this, duration: const Duration(milliseconds: 400));
     animation = ColorTween(begin: widget.colorOff, end: widget.color).animate(
-        CurvedAnimation(parent: controller, curve: Curves.easeInOutQuart))
+        CurvedAnimation(parent: controller, curve: Curves.easeInOutExpo))
       ..addListener(() {
         setState(() {});
       });
