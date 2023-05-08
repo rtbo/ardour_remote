@@ -76,7 +76,9 @@ class ArdourRemoteImpl extends ArdourRemote {
     try {
       final channel = await OscChannel.establish(connection);
 
-      const feedback = feedbackHeartbeat |
+      const feedback = feedbackStripButtons |
+          feedbackStripControls |
+          feedbackHeartbeat |
           feedbackMasterSection |
           feedbackPlayheadBbt |
           feedbackPlayheadTime;
@@ -202,3 +204,34 @@ class ArdourRemoteImpl extends ArdourRemote {
     }
   }
 }
+
+// master data
+// - name
+// - mute
+// - trimdB
+// - pan_stereo_position (0: right, 0.5: middle, 1: left)
+// - gain
+
+// monitor data
+// - name
+// - mute
+// - dim
+// - mono
+// - gain
+
+// per strip data
+// - select
+// - name
+// - group
+// - hide
+// - mute[/automation|/automation_name]
+// - solo[iso|safe]
+// - monitor[_input|_disk]
+// - recenable
+// - gain[/automation|/automation_name]
+// - trimdB[/automation|/automation_name]
+// - pan_type
+// - pan_stereo_position[/automation|/automation_name] (0: right, 0.5: middle, 1: left)
+// - pan_stereo_width[/automation|/automation_name]
+// - expand
+
