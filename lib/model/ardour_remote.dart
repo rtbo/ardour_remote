@@ -58,7 +58,6 @@ class ArdourRemote with ChangeNotifier {
   void toStart() {}
   void toEnd() {}
   void jumpBars(int bars) {}
-  void jumpBeats(int beats) {}
   void jumpTime(double time) {}
   void rewind() {}
   void ffwd() {}

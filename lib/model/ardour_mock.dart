@@ -139,29 +139,12 @@ class ArdourRemoteMock extends ArdourRemote {
   }
 
   @override
-  void jumpBeats(int beats) {
-    if (beats == 0) return;
-
-    final b = _beat;
-
-    final opp = beats > 0 ? -1 : 1;
-    final whole = beats > 0 ? b.ceilToDouble() : b.roundToDouble();
-
-    if (b != whole) {
-      beats += opp;
-    }
-
-    _gotoMs((whole + beats) * _beatMs);
-  }
-
-  @override
   void jumpTime(double time) {
     _gotoMs(_playheadMs + time * 1000);
   }
 
   void _gotoMs(double ms) {
     _playheadMs = clampDouble(ms, 0, 120000);
-    print("going to ${_playheadMs / 1000}s");
     _computeBbtTimecode();
     notifyListeners();
   }
