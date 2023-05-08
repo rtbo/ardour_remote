@@ -77,6 +77,8 @@ flutter:
     - assets/icons/arrow_right_double_bar.png
     - assets/icons/arrow_right_bar.png
     - assets/icons/arrow_right_quarter.png
+    - assets/icons/fast_forward.png
+    - assets/icons/rewind.png
     - assets/icons/record.png
     - assets/icons/play.png
     - assets/icons/stop.png
