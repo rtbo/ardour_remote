@@ -330,6 +330,16 @@ class JumpButtonsRow extends StatelessWidget {
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
         IconButton(
+          icon: Image.asset(Assets.icons.rewind,
+              width: sz, color: iconCol),
+          iconSize: sz,
+          style: butStyle,
+          onPressed: () {
+            remote.rewind();
+          },
+        ),
+        const SizedBox(width: space),
+        IconButton(
           icon: Image.asset(Assets.icons.arrow_left_double_bar,
               width: sz, color: iconCol),
           iconSize: sz,
@@ -350,26 +360,6 @@ class JumpButtonsRow extends StatelessWidget {
         ),
         const SizedBox(width: space),
         IconButton(
-          icon: Image.asset(Assets.icons.arrow_left_quarter,
-              width: sz, color: iconCol),
-          iconSize: sz,
-          style: butStyle,
-          onPressed: () {
-            remote.jumpBeats(-1);
-          },
-        ),
-        const SizedBox(width: space),
-        IconButton(
-          icon: Image.asset(Assets.icons.arrow_right_quarter,
-              width: sz, color: iconCol),
-          iconSize: sz,
-          style: butStyle,
-          onPressed: () {
-            remote.jumpBeats(1);
-          },
-        ),
-        const SizedBox(width: space),
-        IconButton(
           icon: Image.asset(Assets.icons.arrow_right_bar,
               width: sz, color: iconCol),
           iconSize: sz,
@@ -386,6 +376,16 @@ class JumpButtonsRow extends StatelessWidget {
           style: butStyle,
           onPressed: () {
             remote.toEnd();
+          },
+        ),
+        const SizedBox(width: space),
+        IconButton(
+          icon: Image.asset(Assets.icons.fast_forward,
+              width: sz, color: iconCol),
+          iconSize: sz,
+          style: butStyle,
+          onPressed: () {
+            remote.ffwd();
           },
         ),
       ],

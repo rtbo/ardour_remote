@@ -60,6 +60,8 @@ class ArdourRemote with ChangeNotifier {
   void jumpBars(int bars) {}
   void jumpBeats(int beats) {}
   void jumpTime(double time) {}
+  void rewind() {}
+  void ffwd() {}
 }
 
 class ArdourRemoteImpl extends ArdourRemote {
@@ -129,6 +131,16 @@ class ArdourRemoteImpl extends ArdourRemote {
   @override
   void jumpBars(int bars) =>
       _sendMsg(OscMessage("/jump_bars", [OscFloat(bars.toDouble())]));
+
+  @override
+  void ffwd() {
+    _sendMsg(OscMessage("/ffwd"));
+  }
+
+  @override
+  void rewind() {
+    _sendMsg(OscMessage("/ffwd"));
+  }
 
   void _sendMsg(OscMessage msg) => _channel!.send(msg);
 

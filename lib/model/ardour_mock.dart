@@ -117,6 +117,28 @@ class ArdourRemoteMock extends ArdourRemote {
   }
 
   @override
+  void ffwd() {
+    speed += 1.5;
+    if (speed > 8) {
+      speed = 8;
+    }
+    playing = speed == 1;
+    stopped = speed == 0;
+    _enableTimer();
+  }
+
+  @override
+  void rewind() {
+    speed -= 1.5;
+    if (speed < -8) {
+      speed = -8;
+    }
+    playing = speed == 1;
+    stopped = speed == 0;
+    _enableTimer();
+  }
+
+  @override
   void jumpBeats(int beats) {
     if (beats == 0) return;
 
