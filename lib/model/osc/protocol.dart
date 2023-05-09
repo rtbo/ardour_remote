@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:isolate';
 import 'dart:typed_data';
 
 import '../../utils/byte_stream.dart';
@@ -212,20 +213,24 @@ class OscString extends OscAtomic {
 }
 
 class OscBlob extends OscAtomic {
-  final Uint8List val;
-  OscBlob(this.val);
+  final TransferableTypedData _val;
+  final int _valLength;
+
+  OscBlob(Uint8List val)
+      : _val = TransferableTypedData.fromList([val]),
+        _valLength = val.lengthInBytes;
 
   @override
   String get typeFlag => "b";
 
   @override
-  int get encodedSize => 4 + alignUp(val.lengthInBytes);
+  int get encodedSize => 4 + alignUp(_valLength);
 
   @override
   bool get isBlob => true;
 
   @override
-  Uint8List get asBlob => val;
+  Uint8List get asBlob => _val.materialize().asUint8List();
 
   factory OscBlob._decode(ByteReadStream stream) {
     final len = stream.readUint32();
@@ -237,9 +242,10 @@ class OscBlob extends OscAtomic {
 
   @override
   void _encode(ByteWriteStream stream) {
-    stream.writeUint32(val.lengthInBytes);
+    final val = _val.materialize().asUint8List();
+    stream.writeUint32(_valLength);
     stream.writeBlob(val);
-    var remainToAlign = alignUp(val.lengthInBytes) - val.lengthInBytes;
+    var remainToAlign = alignUp(_valLength) - _valLength;
     while (remainToAlign != 0) {
       stream.writeUint8(0);
       remainToAlign--;
@@ -248,7 +254,7 @@ class OscBlob extends OscAtomic {
 
   @override
   String toString() {
-    return "OscBlob($val)";
+    return "OscBlob([$_valLength bytes])";
   }
 }
 
