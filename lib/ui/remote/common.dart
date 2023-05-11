@@ -1,6 +1,42 @@
 
 import 'package:flutter/material.dart';
 
+import '../../model/ardour_remote.dart';
+
+extension DarkTheme on BuildContext {
+  /// is dark mode currently enabled?
+  bool get isDarkTheme {
+    final brightness = Theme.of(this).brightness;
+    return brightness == Brightness.dark;
+  }
+}
+
+extension Dark on ThemeData {
+  /// is dark mode currently enabled?
+  bool get isDark {
+    return brightness == Brightness.dark;
+  }
+}
+
+extension Record on Transport {
+  bool get recordBlink {
+    return recordArmed && !playing;
+  }
+
+  bool get recording {
+    return recordArmed && playing;
+  }
+}
+
+class Breakpoints {
+  static const sm = 576;
+  static const md = 768;
+  static const lg = 992;
+  static const xl = 1200;
+  static const xxl = 1400;
+}
+
+
 const transitionDuration = Duration(milliseconds: 270);
 
 class TransitionIconButton extends StatefulWidget {
