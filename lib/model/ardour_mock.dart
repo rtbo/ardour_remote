@@ -25,12 +25,9 @@ class ArdourRemoteMock extends ArdourRemote {
     _playheadMs = 0;
     _computeBbtTimecode();
     sessionName = "Mock session";
-    playing = false;
-    stopped = true;
-    speed = 0.0;
-    tempo = _mockTempo;
-    recordArmed = false;
     connected = true;
+    transport.updateWith(
+        playing: false, stopped: true, speed: 0, recordArmed: false);
     _hbTimer = Timer.periodic(const Duration(milliseconds: 800), (timer) {
       heartbeat = !heartbeat;
       notifyListeners();
@@ -41,15 +38,14 @@ class ArdourRemoteMock extends ArdourRemote {
 
   @override
   Future disconnect() async {
+    print("mock.disconnect");
     _disableTimer();
     _playheadMs = 0;
     _computeBbtTimecode();
     sessionName = "";
-    playing = false;
-    stopped = false;
-    speed = 0.0;
-    recordArmed = false;
     connected = false;
+    transport.updateWith(
+        playing: false, stopped: false, speed: 0, recordArmed: false);
     _hbTimer?.cancel();
 
     notifyListeners();
@@ -57,9 +53,7 @@ class ArdourRemoteMock extends ArdourRemote {
 
   @override
   void play() {
-    speed = 1.0;
-    playing = true;
-    stopped = false;
+    transport.speed = 1.0;
     _lastPlayheadMs = _playheadMs;
     _enableTimer();
     notifyListeners();
@@ -67,18 +61,14 @@ class ArdourRemoteMock extends ArdourRemote {
 
   @override
   void stop() {
-    speed = 0.0;
-    playing = false;
-    stopped = true;
+    transport.speed = 0;
     _disableTimer();
     notifyListeners();
   }
 
   @override
   void stopAndTrash() {
-    speed = 0.0;
-    playing = false;
-    stopped = true;
+    transport.speed = 0;
     _disableTimer();
     _playheadMs = _lastPlayheadMs;
     _computeBbtTimecode();
@@ -87,7 +77,7 @@ class ArdourRemoteMock extends ArdourRemote {
 
   @override
   void recordArmToggle() {
-    recordArmed = !recordArmed;
+    transport.toggleRecord();
     notifyListeners();
   }
 
@@ -118,23 +108,23 @@ class ArdourRemoteMock extends ArdourRemote {
 
   @override
   void ffwd() {
-    speed += 1.5;
-    if (speed > 8) {
-      speed = 8;
+    var spd = transport.speed;
+    spd = 1.5;
+    if (spd > 8) {
+      spd = 8;
     }
-    playing = speed == 1;
-    stopped = speed == 0;
+    transport.speed = spd;
     _enableTimer();
   }
 
   @override
   void rewind() {
-    speed -= 1.5;
-    if (speed < -8) {
-      speed = -8;
+    var spd = transport.speed;
+    spd -= 1.5;
+    if (spd < -8) {
+      spd = -8;
     }
-    playing = speed == 1;
-    stopped = speed == 0;
+    transport.speed = spd;
     _enableTimer();
   }
 
@@ -163,7 +153,7 @@ class ArdourRemoteMock extends ArdourRemote {
   }
 
   void _updatePlayhead() {
-    _playheadMs += speed * _timerPeriodMs;
+    _playheadMs += transport.speed * _timerPeriodMs;
     _computeBbtTimecode();
     notifyListeners();
   }
@@ -178,7 +168,7 @@ class ArdourRemoteMock extends ArdourRemote {
     final barTxt = (barI + 1).toString().padLeft(3, "0");
     final beatTxt = (beatI + 1).toString().padLeft(2, "0");
     final ticksTxt = ticks.toString().padLeft(4, "0");
-    bbt = "$barTxt|$beatTxt|$ticksTxt";
+    transport.bbt = "$barTxt|$beatTxt|$ticksTxt";
 
     // 25 fps
     final minutes = (_playheadMs / 60000).floor();
@@ -188,11 +178,11 @@ class ArdourRemoteMock extends ArdourRemote {
     final minutesTxt = minutes.toString().padLeft(2, "0");
     final secondsTxt = seconds.toString().padLeft(2, "0");
     final framesTxt = frames.toString().padLeft(2, "0");
-    timecode = "00:$minutesTxt:$secondsTxt:$framesTxt";
+    transport.timecode = "00:$minutesTxt:$secondsTxt:$framesTxt";
   }
 
   double get _bar => _playheadMs / _barMs;
   double get _beat => _playheadMs / _beatMs;
   double get _barMs => _mockSig * _beatMs;
-  double get _beatMs => 60000 / tempo;
+  double get _beatMs => 60000 / _mockTempo;
 }

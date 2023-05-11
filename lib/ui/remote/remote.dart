@@ -29,7 +29,7 @@ extension on ThemeData {
   }
 }
 
-extension on ArdourRemote {
+extension on Transport {
   bool get recordBlink {
     return recordArmed && !playing;
   }
@@ -47,21 +47,41 @@ class Breakpoints {
   static const xxl = 1400;
 }
 
-class RemotePage extends StatelessWidget {
+class RemotePage extends StatefulWidget {
   const RemotePage({super.key, required this.connection});
   final Connection connection;
 
   @override
+  State<RemotePage> createState() => _RemotePageState();
+}
+
+class _RemotePageState extends State<RemotePage> {
+  late ArdourRemote remote;
+
+  @override
+  void initState() {
+    super.initState();
+    if (kReleaseMode || widget.connection.host != "mock") {
+      remote = ArdourRemoteImpl(widget.connection)..connect();
+    } else {
+      remote = ArdourRemoteMock(widget.connection)..connect();
+    }
+  }
+
+  @override
+  void dispose() {
+    remote.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
-    return ChangeNotifierProvider(
-      create: (context) {
-        if (kReleaseMode || connection.host != "mock") {
-          return ArdourRemoteImpl(connection)..connect();
-        } else {
-          return ArdourRemoteMock(connection)..connect();
-        }
-      },
-      child: RemoteLoader(connection: connection),
+    return MultiProvider(
+      providers: [
+        ChangeNotifierProvider.value(value: remote),
+        ChangeNotifierProvider.value(value: remote.transport),
+      ],
+      child: RemoteLoader(connection: widget.connection),
     );
   }
 }
@@ -283,23 +303,23 @@ class TimeInfoRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final remote = context.watch<ArdourRemote>();
+    final transport = context.watch<Transport>();
     final isDark = context.isDarkTheme;
     final style = TextStyle(
       fontFamily: 'monospace',
       color: isDark ? Colors.green[400] : Colors.green[800],
       fontSize: 16,
     );
-    final speed = remote.speed;
+    final speed = transport.speed;
     return Stack(
       alignment: Alignment.center,
       children: [
         Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Text(remote.timecode, style: style),
+            Text(transport.timecode, style: style),
             const SizedBox(width: 12),
-            Text(remote.bbt, style: style),
+            Text(transport.bbt, style: style),
           ],
         ),
         if (speed != 0 && speed != 1)
@@ -322,7 +342,7 @@ class JumpButtonsRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final remote = context.watch<ArdourRemote>();
+    final remote = Provider.of<ArdourRemote>(context, listen: false);
     final theme = Theme.of(context);
     final iconCol = theme.colorScheme.onBackground;
     const sz = 36.0;
@@ -331,8 +351,7 @@ class JumpButtonsRow extends StatelessWidget {
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
         IconButton(
-          icon: Image.asset(Assets.icons.rewind,
-              width: sz, color: iconCol),
+          icon: Image.asset(Assets.icons.rewind, width: sz, color: iconCol),
           iconSize: sz,
           style: butStyle,
           onPressed: () {
@@ -381,8 +400,8 @@ class JumpButtonsRow extends StatelessWidget {
         ),
         const SizedBox(width: space),
         IconButton(
-          icon: Image.asset(Assets.icons.fast_forward,
-              width: sz, color: iconCol),
+          icon:
+              Image.asset(Assets.icons.fast_forward, width: sz, color: iconCol),
           iconSize: sz,
           style: butStyle,
           onPressed: () {
@@ -443,19 +462,20 @@ class RecordingButtonsRow extends StatelessWidget {
   Widget build(BuildContext context) {
     const sz = 56.0;
     const space = 18.0;
-    final remote = context.watch<ArdourRemote>();
+    final transport = context.watch<Transport>();
+    final remote = Provider.of<ArdourRemote>(context, listen: false);
     final theme = Theme.of(context);
     final isDark = theme.isDark;
     final palette = isDark ? darkButPalette : lightButPalette;
 
-    final recordBut = remote.recordBlink
+    final recordBut = transport.recordBlink
         ? BlinkRecordButton(
             color: palette.record,
             colorOff: palette.recordOff,
             size: sz,
             style: butStyle)
         : SolidRecordButton(
-            color: remote.recording ? palette.record : palette.recordOff,
+            color: transport.recording ? palette.record : palette.recordOff,
             size: sz,
             style: butStyle);
     return Row(
@@ -466,9 +486,9 @@ class RecordingButtonsRow extends StatelessWidget {
         TransitionIconButton(
           asset: Assets.icons.play,
           size: sz,
-          color: remote.playing ? palette.playDisabled : palette.play,
+          color: transport.playing ? palette.playDisabled : palette.play,
           style: butStyle,
-          onPressed: remote.playing
+          onPressed: transport.playing
               ? null
               : () {
                   remote.play();
@@ -478,9 +498,9 @@ class RecordingButtonsRow extends StatelessWidget {
         TransitionIconButton(
           asset: Assets.icons.stop,
           size: sz,
-          color: remote.stopped ? palette.stopDisabled : palette.stop,
+          color: transport.stopped ? palette.stopDisabled : palette.stop,
           style: butStyle,
-          onPressed: remote.stopped
+          onPressed: transport.stopped
               ? null
               : () {
                   remote.stop();
@@ -490,9 +510,9 @@ class RecordingButtonsRow extends StatelessWidget {
         TransitionIconButton(
           asset: Assets.icons.stop_trash,
           size: sz,
-          color: remote.recording ? palette.record : palette.recordDisabled,
+          color: transport.recording ? palette.record : palette.recordDisabled,
           style: butStyle,
-          onPressed: remote.recording
+          onPressed: transport.recording
               ? () {
                   remote.stopAndTrash();
                 }
@@ -584,7 +604,6 @@ class _BlinkRecordButtonState extends State<BlinkRecordButton>
     );
   }
 }
-
 
 class ConnectInfoRow extends StatelessWidget {
   const ConnectInfoRow({super.key});

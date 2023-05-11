@@ -26,41 +26,128 @@ const feedbackLegacyReply = 16384;
 
 const connectionTimeout = Duration(seconds: 3);
 
-class ArdourRemote with ChangeNotifier {
-  final Connection connection;
-  String? error;
-  var connected = false;
-  var sessionName = '';
-  var heartbeat = false;
-  var bbt = "";
-  var timecode = "";
-  var playing = false;
-  var stopped = false;
-  var tempo = 120.0;
-  var speed = 0.0;
-  var recordArmed = false;
+class Transport with ChangeNotifier {
+  var _bbt = "";
+  get bbt => _bbt;
+  set bbt(val) {
+    _bbt = val;
+    notifyListeners();
+  }
 
+  var _timecode = "";
+  get timecode => _timecode;
+  set timecode(val) {
+    _timecode = val;
+    notifyListeners();
+  }
+
+  var _playing = false;
+  get playing => _playing;
+  set playing(val) {
+    _playing = val;
+    notifyListeners();
+  }
+
+  var _stopped = false;
+  get stopped => _stopped;
+  set stopped(val) {
+    _stopped = val;
+    notifyListeners();
+  }
+
+  var _speed = 0.0;
+  double get speed => _speed;
+  set speed(double val) {
+    _speed = val;
+    _playing = val == 1;
+    _stopped = val == 0;
+    notifyListeners();
+  }
+
+  var _recordArmed = false;
+  get recordArmed => _recordArmed;
+  set recordArmed(val) {
+    _recordArmed = val;
+    notifyListeners();
+  }
+
+  void toggleRecord() {
+    _recordArmed = !_recordArmed;
+    notifyListeners();
+  }
+
+  void updateWith(
+      {String? bbt,
+      String? timecode,
+      bool? playing,
+      bool? stopped,
+      double? speed,
+      bool? recordArmed}) {
+    _bbt = bbt ?? _bbt;
+    _timecode = timecode ?? _timecode;
+    _playing = playing ?? _playing;
+    _stopped = playing ?? _stopped;
+    _speed = speed ?? _speed;
+    _recordArmed = recordArmed ?? _recordArmed;
+    notifyListeners();
+  }
+}
+
+abstract class ArdourRemote with ChangeNotifier {
   ArdourRemote(this.connection);
+
+  final Connection connection;
+
+  String? _error;
+  get error => _error;
+  set error(val) {
+    _error = val;
+    notifyListeners();
+  }
+
+  var _connected = false;
+  get connected => _connected;
+  set connected(val) {
+    _connected = val;
+    notifyListeners();
+  }
+
+  var _sessionName = '';
+  get sessionName => _sessionName;
+  set sessionName(val) {
+    _sessionName = val;
+    notifyListeners();
+  }
+
+  var _heartbeat = false;
+  get heartbeat => _heartbeat;
+  set heartbeat(val) {
+    _heartbeat = val;
+    notifyListeners();
+  }
+
+  final transport = Transport();
 
   @override
   void dispose() {
     disconnect();
+    transport.dispose();
     super.dispose();
   }
 
-  Future connect() async {}
-  Future disconnect() async {}
+  Future connect();
+  Future disconnect();
 
-  void play() {}
-  void stop() {}
-  void stopAndTrash() {}
-  void recordArmToggle() {}
-  void toStart() {}
-  void toEnd() {}
-  void jumpBars(int bars) {}
+  void play();
+  void stop();
+  void stopAndTrash();
+  void recordArmToggle();
+  void toStart();
+  void toEnd();
+  void jumpBars(int bars);
   void jumpTime(double time) {}
-  void rewind() {}
-  void ffwd() {}
+  void rewind();
+  void ffwd();
 }
 
 class ArdourRemoteImpl extends ArdourRemote {
@@ -164,27 +251,25 @@ class ArdourRemoteImpl extends ArdourRemote {
         heartbeat = msg.arguments.first.asFloat! > 0.5;
         break;
       case "/position/bbt":
-        bbt = msg.arguments.first.asString!;
+        transport.bbt = msg.arguments.first.asString!;
         break;
       case "/position/time":
-        timecode = msg.arguments.first.asString!;
+        transport.timecode = msg.arguments.first.asString!;
         break;
       case "/transport_play":
-        playing = msg.arguments.first.asInt! != 0;
+        transport.playing = msg.arguments.first.asInt! != 0;
         break;
       case "/transport_stop":
-        stopped = msg.arguments.first.asInt! != 0;
+        transport.stopped = msg.arguments.first.asInt! != 0;
         break;
       case "/transport/speed":
-        speed = msg.arguments.first.asFloat!;
-        stopped = (speed == 0.0);
-        playing = (speed == 1.0);
+        transport.speed = msg.arguments.first.asFloat!;
         break;
       case "/rec_enable_toggle":
         if (msg.arguments.isNotEmpty) {
-          recordArmed = msg.arguments.first.asInt! != 0;
+          transport.recordArmed = msg.arguments.first.asInt! != 0;
         } else {
-          recordArmed = !recordArmed;
+          transport.toggleRecord();
         }
         break;
       case "/session_name":
