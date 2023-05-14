@@ -38,7 +38,6 @@ class ArdourRemoteMock extends ArdourRemote {
 
   @override
   Future disconnect() async {
-    print("mock.disconnect");
     _disableTimer();
     _playheadMs = 0;
     _computeBbtTimecode();

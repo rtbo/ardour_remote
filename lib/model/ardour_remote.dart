@@ -93,6 +93,73 @@ class Transport with ChangeNotifier {
   }
 }
 
+// master data
+// - name
+// - mute
+// - trimdB
+// - pan_stereo_position (0: right, 0.5: middle, 1: left)
+// - gain
+
+// monitor data
+// - name
+// - mute
+// - dim
+// - mono
+// - gain
+
+// per strip data
+// - select
+// - name
+// - group
+// - hide
+// - mute[/automation|/automation_name]
+// - solo[iso|safe]
+// - monitor[_input|_disk]
+// - recenable
+// - gain[/automation|/automation_name]
+// - trimdB[/automation|/automation_name]
+// - pan_type
+// - pan_stereo_position[/automation|/automation_name] (0: right, 0.5: middle, 1: left)
+// - pan_stereo_width[/automation|/automation_name]
+// - expand
+
+class Master with ChangeNotifier {
+  String _name = "Master";
+  get name => _name;
+  set name(val) {
+    _name = val;
+    notifyListeners();
+  }
+
+  bool _mute = false;
+  bool get mute => _mute;
+  set mute(bool val) {
+    _mute = val;
+    notifyListeners();
+  }
+
+  double _trim = 0.0;
+  double get trim => _trim;
+  set trim(double val) {
+    _trim = val;
+    notifyListeners();
+  }
+
+  double _panPos = 0.5;
+  double get panPos => _panPos;
+  set panPos(double val) {
+    _panPos = val;
+    notifyListeners();
+  }
+
+  double _gain = 0.0;
+  double get gain => _gain;
+  set gain(double val) {
+    _gain = val;
+    notifyListeners();
+  }
+}
+
 abstract class ArdourRemote with ChangeNotifier {
   ArdourRemote(this.connection);
 
@@ -127,6 +194,7 @@ abstract class ArdourRemote with ChangeNotifier {
   }
 
   final transport = Transport();
+  final master = Master();
 
   @override
   void dispose() {
@@ -240,7 +308,6 @@ class ArdourRemoteImpl extends ArdourRemote {
     } else {
       _dispatchMessage(msg.msg!);
     }
-    notifyListeners();
   }
 
   void _dispatchMessage(OscMessage msg) {
@@ -272,6 +339,18 @@ class ArdourRemoteImpl extends ArdourRemote {
           transport.toggleRecord();
         }
         break;
+      case "/master/name":
+        master.name = msg.arguments.first.asString!;
+        break;
+      case "/master/gain":
+        master.gain = msg.arguments.first.asFloat!;
+        break;
+      case "/master/trimdB":
+        master.trim = msg.arguments.first.asFloat!;
+        break;
+      case "/master/pan_stereo_position":
+        master.panPos = msg.arguments.first.asFloat!;
+        break;
       case "/session_name":
         sessionName = msg.arguments.first.asString!;
         break;
@@ -285,38 +364,7 @@ class ArdourRemoteImpl extends ArdourRemote {
         }
         break;
       default:
-        break;
+        print("unknown msg: ${msg.address}");
     }
   }
 }
-
-// master data
-// - name
-// - mute
-// - trimdB
-// - pan_stereo_position (0: right, 0.5: middle, 1: left)
-// - gain
-
-// monitor data
-// - name
-// - mute
-// - dim
-// - mono
-// - gain
-
-// per strip data
-// - select
-// - name
-// - group
-// - hide
-// - mute[/automation|/automation_name]
-// - solo[iso|safe]
-// - monitor[_input|_disk]
-// - recenable
-// - gain[/automation|/automation_name]
-// - trimdB[/automation|/automation_name]
-// - pan_type
-// - pan_stereo_position[/automation|/automation_name] (0: right, 0.5: middle, 1: left)
-// - pan_stereo_width[/automation|/automation_name]
-// - expand
-
