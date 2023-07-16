@@ -1,0 +1,11 @@
+Control your Ardour DAW from your smartphone
+
+Ardour Remote is not affiliated with Ardour, but is developped in the hope to be useful to Ardour users.
+It allows to control your Ardour DAW session with OSC messages from your smartphone over Local Area Network (LAN). Typically, your smartphone must be connected to the same wifi as the Ardour DAW.
+
+Current features:
+ - Transport control
+ - Recording control
+
+In its current state, Ardour Remote is mostly useful for musicians performing in a home studio during a recording session.
+
